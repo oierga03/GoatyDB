@@ -1,11 +1,6 @@
-/// Primitiva de carga (bloque gris con pulso).
+/// Primitiva de carga: bloque azul clarito con un brillo que lo recorre.
 export function Skeleton({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`animate-pulse rounded-md bg-white/[0.06] ${className}`}
-      aria-hidden
-    />
-  );
+  return <div className={`skeleton rounded-md ${className}`} aria-hidden />;
 }
 
 /// Rejilla de tarjetas "fantasma" para listados mientras cargan.
