@@ -102,16 +102,16 @@ export const RESULT_LABELS: Record<TeamEntryResult, string> = {
 
 /// Clases Tailwind para el badge de cada resultado.
 export const RESULT_BADGE_CLASS: Record<TeamEntryResult, string> = {
-  CHAMPION: "bg-amber-400/15 text-amber-300 ring-1 ring-inset ring-amber-400/30",
-  RUNNER_UP: "bg-slate-200/20 text-slate-100 ring-1 ring-inset ring-slate-200/50",
-  SEMIFINALIST: "bg-orange-400/10 text-orange-300 ring-1 ring-inset ring-orange-400/25",
-  QUARTERFINALIST: "bg-sky-400/10 text-sky-300 ring-1 ring-inset ring-sky-400/20",
-  PLAYOFFS: "bg-sky-400/10 text-sky-300 ring-1 ring-inset ring-sky-400/20",
-  GROUP_STAGE: "bg-slate-500/10 text-slate-400 ring-1 ring-inset ring-slate-500/20",
-  PARTICIPATED: "bg-slate-500/10 text-slate-400 ring-1 ring-inset ring-slate-500/20",
-  WITHDRAWN: "bg-red-400/10 text-red-300 ring-1 ring-inset ring-red-400/20",
-  DISQUALIFIED: "bg-red-400/10 text-red-300 ring-1 ring-inset ring-red-400/20",
-  UNKNOWN: "bg-slate-400/10 text-slate-400 ring-1 ring-inset ring-slate-400/15",
+  CHAMPION: "bg-amber-600/15 text-amber-800 ring-1 ring-inset ring-amber-600/30",
+  RUNNER_UP: "bg-slate-500/15 text-slate-700 ring-1 ring-inset ring-slate-400/40",
+  SEMIFINALIST: "bg-orange-600/15 text-orange-800 ring-1 ring-inset ring-orange-500/30",
+  QUARTERFINALIST: "bg-sky-600/15 text-sky-800 ring-1 ring-inset ring-sky-500/30",
+  PLAYOFFS: "bg-sky-600/15 text-sky-800 ring-1 ring-inset ring-sky-500/30",
+  GROUP_STAGE: "bg-slate-600/10 text-slate-600 ring-1 ring-inset ring-slate-500/20",
+  PARTICIPATED: "bg-slate-600/10 text-slate-600 ring-1 ring-inset ring-slate-500/20",
+  WITHDRAWN: "bg-rose-600/15 text-rose-800 ring-1 ring-inset ring-rose-500/30",
+  DISQUALIFIED: "bg-rose-600/15 text-rose-800 ring-1 ring-inset ring-rose-500/30",
+  UNKNOWN: "bg-slate-400/10 text-slate-500 ring-1 ring-inset ring-slate-400/20",
 };
 
 export function resultLabel(result: TeamEntryResult): string {

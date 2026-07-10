@@ -1,25 +1,25 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   GoatyDB — Sistema visual (tema claro, limpio y luminoso)
-   Blancos y azules claros con acentos de color (cian / ámbar / violeta).
-   Aireado y legible, a juego con la marca Goaty (cabras color claro).
+   GoatyDB — Sistema visual (Soft Light Mode / Modo Claro Suave)
+   Fondo orgánico y relajante usando tonos hueso, contrastes nítidos 
+   y acentos vibrantes en cian y rosa.
    ========================================================================== */
 
 @theme {
   /* Base */
-  --color-bg: #eef4fc; /* azul muy claro casi blanco */
-  --color-surface: #ffffff; /* tarjetas */
-  --color-surface-2: #e8eff9; /* superficies secundarias / hover */
-  --color-border: #d4e1f2;
-  --color-muted: #566581; /* texto secundario legible */
-  --color-text: #12213b; /* texto principal (navy) */
+  --color-bg: #F2EEE9;           /* Fondo principal: Blanco roto/Hueso (cero fatiga visual) */
+  --color-surface: #FFFFFF;      /* Tarjetas: Blanco puro para que resalten sobre el fondo */
+  --color-surface-2: #EBE5DF;    /* Superficies secundarias / Hover (un tono hueso más oscuro) */
+  --color-border: #DFD7CE;       /* Bordes suaves y orgánicos */
+  --color-muted: #8C6249;        /* Texto secundario / Detalles de tierra */
+  --color-text: #0D0D0D;         /* Texto principal: Negro profundo para máxima legibilidad */
 
-  /* Acentos (elegidos para leerse bien sobre claro) */
-  --color-accent: #0fb0c2; /* cian/teal — interacción, foco, hover */
-  --color-accent-2: #e8930c; /* oro "goaty" (ámbar) — destacados y trofeos */
-  --color-accent-3: #7c3aed; /* violeta — profundidad y matices */
-  --color-sky: #2ba6f0; /* azul clarito del logo Goaty */
+  /* Acentos competitivos */
+  --color-accent: #63BBF2;       /* Cian/Azul — Interacción principal y focos activos */
+  --color-accent-2: #F27289;     /* Rosa — Énfasis, destacados y alertas */
+  --color-accent-3: #8C6249;     /* Marrón — Identidad y profundidad */
+  --color-sky: #63BBF2;          /* Sincronizado con tu azul de marca principal */
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif;
@@ -34,11 +34,11 @@ body {
   font-family: var(--font-sans);
   min-height: 100vh;
   background-color: var(--color-bg);
-  /* Destellos de color suaves que dan vida sin restar luminosidad. */
+  /* Degradados suaves que añaden color sin cegar al usuario */
   background-image:
-    radial-gradient(55rem 55rem at 12% -12%, rgba(43, 166, 240, 0.14), transparent 60%),
-    radial-gradient(50rem 50rem at 105% 8%, rgba(124, 58, 237, 0.09), transparent 55%),
-    radial-gradient(45rem 45rem at 50% 118%, rgba(232, 147, 12, 0.07), transparent 60%);
+    radial-gradient(55rem 55rem at 12% -12%, rgba(99, 187, 242, 0.15), transparent 60%),
+    radial-gradient(50rem 50rem at 105% 8%, rgba(242, 114, 137, 0.1), transparent 55%),
+    radial-gradient(45rem 45rem at 50% 118%, rgba(140, 98, 73, 0.08), transparent 60%);
   background-attachment: fixed;
 }
 
@@ -46,7 +46,7 @@ body {
    Utilidades reutilizables
    -------------------------------------------------------------------------- */
 
-/* Texto con degradado ámbar → cian, para titulares y cifras. */
+/* Texto con degradado Rosa → Cian */
 .text-gradient {
   background-image: linear-gradient(92deg, var(--color-accent-2), var(--color-accent));
   -webkit-background-clip: text;
@@ -54,19 +54,19 @@ body {
   color: transparent;
 }
 
-/* Tarjeta base: blanca translúcida con sombra suave (profundidad en claro). */
+/* Tarjeta base: Blanca, limpia y con una sombra sutil pero elegante */
 .card {
-  background-color: color-mix(in oklab, var(--color-surface) 88%, transparent);
+  background-color: color-mix(in oklab, var(--color-surface) 90%, transparent);
   border: 1px solid var(--color-border);
   border-radius: 0.9rem;
   box-shadow:
-    0 1px 2px rgba(18, 33, 59, 0.04),
-    0 12px 28px -20px rgba(18, 33, 59, 0.18);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+    0 1px 2px rgba(13, 13, 13, 0.03),
+    0 12px 28px -20px rgba(140, 98, 73, 0.15);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
 
-/* Efecto al pasar el ratón: elevación + borde de acento + brillo azul. */
+/* Efecto Hover: Elevación con un sutil halo azul/cian */
 .card-hover {
   transition:
     transform 0.18s ease,
@@ -75,13 +75,13 @@ body {
 }
 .card-hover:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--color-sky) 55%, var(--color-border));
+  border-color: color-mix(in oklab, var(--color-accent) 50%, var(--color-border));
   box-shadow:
-    0 14px 34px -18px rgba(43, 166, 240, 0.4),
-    0 0 0 1px color-mix(in oklab, var(--color-sky) 25%, transparent);
+    0 14px 34px -18px rgba(99, 187, 242, 0.4),
+    0 0 0 1px color-mix(in oklab, var(--color-accent) 20%, transparent);
 }
 
-/* Botón principal con degradado. */
+/* Botón principal: Texto en el blanco roto (#F2EEE9) sobre el degradado vibrante */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -90,19 +90,19 @@ body {
   padding: 0.55rem 1rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #ffffff;
-  background-image: linear-gradient(92deg, var(--color-accent), var(--color-sky));
-  box-shadow: 0 10px 24px -10px rgba(43, 166, 240, 0.55);
+  color: var(--color-bg); /* Usa el fondo claro para contrastar con el botón oscuro/saturado */
+  background-image: linear-gradient(92deg, var(--color-accent-2), var(--color-accent));
+  box-shadow: 0 10px 24px -10px rgba(99, 187, 242, 0.4);
   transition: filter 0.15s ease, transform 0.15s ease;
 }
 .btn-primary:hover {
-  filter: brightness(1.05);
+  filter: brightness(0.95); /* En modo claro, oscurecemos un pelo al hacer hover */
 }
 .btn-primary:active {
   transform: translateY(1px);
 }
 
-/* Badge genérico (resultados, categorías…). */
+/* Badge genérico */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -114,21 +114,23 @@ body {
   letter-spacing: 0.01em;
   line-height: 1.25rem;
   white-space: nowrap;
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-border);
 }
 
-/* Filete decorativo superior de sección/tarjeta. */
+/* Filete decorativo superior de sección (Transición Cian a Rosa) */
 .accent-rule {
   height: 3px;
   border-radius: 9999px;
   background-image: linear-gradient(
     90deg,
-    var(--color-sky),
-    var(--color-accent-3)
+    var(--color-accent),
+    var(--color-accent-2)
   );
 }
 
 /* --------------------------------------------------------------------------
-   Carga: esqueletos en azul clarito con un brillo que los recorre (shimmer).
+   Carga: Esqueletos suaves que combinan con el tono hueso
    -------------------------------------------------------------------------- */
 @keyframes skeleton-shimmer {
   0% {
@@ -141,11 +143,11 @@ body {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background-color: color-mix(in oklab, var(--color-sky) 20%, var(--color-surface-2));
+  background-color: var(--color-surface-2);
   background-image: linear-gradient(
     100deg,
     transparent 25%,
-    color-mix(in oklab, var(--color-sky) 40%, transparent) 50%,
+    color-mix(in oklab, var(--color-accent) 20%, transparent) 50%,
     transparent 75%
   );
   background-size: 200% 100%;
@@ -157,17 +159,17 @@ body {
   }
 }
 
-/* Logo "respirando" para cargas de página completa (glow azul clarito). */
+/* Logo "respirando" con un sutil resplandor cian */
 @keyframes goaty-pulse {
   0%,
   100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 0 rgba(43, 166, 240, 0));
+    filter: drop-shadow(0 0 0 rgba(99, 187, 242, 0));
     opacity: 0.92;
   }
   50% {
-    transform: scale(1.06);
-    filter: drop-shadow(0 0 18px rgba(43, 166, 240, 0.5));
+    transform: scale(1.04);
+    filter: drop-shadow(0 0 12px rgba(99, 187, 242, 0.3));
     opacity: 1;
   }
 }
