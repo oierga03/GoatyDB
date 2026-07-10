@@ -63,7 +63,7 @@ export default function RootLayout({
                   href="/acerca-de"
                   className="hover:text-[var(--color-text)]"
                 >
-                  Acerca de →
+                  Quiénes somos →
                 </Link>
               </div>
             </div>

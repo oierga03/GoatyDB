@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { Logo } from "@/components/Logo";
 
 const CARDS = [
   {
@@ -7,7 +8,7 @@ const CARDS = [
     icon: "🎮",
     title: "Jugadores",
     desc: "Busca por nick y filtra por rol, equipo y división.",
-    tint: "rgba(45,212,191,0.5)",
+    tint: "rgba(87,195,255,0.5)",
   },
   {
     href: "/teams",
@@ -43,33 +44,48 @@ export default async function HomePage() {
   return (
     <div className="space-y-12">
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-3xl border border-[var(--color-border)] px-6 py-14 text-center sm:py-20">
+      <section className="relative overflow-hidden rounded-3xl border border-[var(--color-border)] px-6 py-16 text-center sm:py-24">
         <div
           className="pointer-events-none absolute inset-0 -z-10"
           style={{
             background:
-              "radial-gradient(40rem 22rem at 50% -20%, rgba(45,212,191,0.18), transparent 70%), radial-gradient(30rem 20rem at 85% 120%, rgba(139,92,246,0.16), transparent 70%)",
+              "radial-gradient(38rem 22rem at 50% -12%, rgba(87,195,255,0.20), transparent 70%), radial-gradient(26rem 20rem at 12% 120%, rgba(45,212,191,0.14), transparent 70%), radial-gradient(26rem 20rem at 88% 120%, rgba(139,92,246,0.16), transparent 70%)",
           }}
         />
+
+        {/* Logo con halo azul */}
+        <div className="relative mx-auto mb-6 flex w-fit items-center justify-center">
+          <div
+            className="pointer-events-none absolute -inset-6 -z-10 rounded-full blur-2xl"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(87,195,255,0.45), transparent 68%)",
+            }}
+          />
+          <Logo size={132} />
+        </div>
+
         <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-white/5 px-3 py-1 text-xs text-[var(--color-muted)]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-sky)]" />
           Base de datos de Hextech · Split 2 2026
         </span>
-        <h1 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-6xl">
+
+        <h1 className="mt-5 text-5xl font-extrabold tracking-tight sm:text-7xl">
           Goaty<span className="text-gradient">DB</span>
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-base text-[var(--color-muted)] sm:text-lg">
-          La base pública de referencia para el amateur de Hextech. Qué jugadores
-          participaron, en qué equipo y división jugaron, cómo quedaron y qué
-          premios ganaron.
+          Cada jugador, cada equipo y cada trofeo del amateur de Hextech, en un
+          solo sitio. Quién jugó, en qué equipo y división, cómo quedó y qué
+          ganó — con datos verificados.
         </p>
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link href="/players" className="btn-primary">
             Explorar jugadores →
           </Link>
           <Link
             href="/teams"
-            className="rounded-lg border border-[var(--color-border)] px-4 py-[0.55rem] text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-accent)]/60 transition-colors"
+            className="rounded-lg border border-[var(--color-border)] px-4 py-[0.55rem] text-sm font-medium text-[var(--color-text)] transition-colors hover:border-[var(--color-sky)]/60"
           >
             Ver equipos
           </Link>
@@ -81,9 +97,12 @@ export default async function HomePage() {
         {stats.map((s) => (
           <div
             key={s.label}
-            className="card px-4 py-5 text-center"
+            className="card card-hover relative overflow-hidden px-4 py-6 text-center"
           >
-            <div className="text-3xl font-extrabold text-gradient">{s.value}</div>
+            <div className="accent-rule absolute inset-x-6 top-0 opacity-60" />
+            <div className="text-3xl font-extrabold text-gradient sm:text-4xl">
+              {s.value}
+            </div>
             <div className="mt-1 text-xs uppercase tracking-wide text-[var(--color-muted)]">
               {s.label}
             </div>
@@ -100,15 +119,15 @@ export default async function HomePage() {
             className="card card-hover group relative overflow-hidden p-5"
           >
             <div
-              className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl opacity-40 transition-opacity group-hover:opacity-70"
+              className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-40 blur-2xl transition-opacity group-hover:opacity-70"
               style={{ background: card.tint }}
             />
             <div className="text-2xl">{card.icon}</div>
-            <h2 className="mt-3 text-xl font-semibold group-hover:text-[var(--color-accent)] transition-colors">
+            <h2 className="mt-3 text-xl font-semibold transition-colors group-hover:text-[var(--color-accent)]">
               {card.title}
             </h2>
             <p className="mt-1.5 text-sm text-[var(--color-muted)]">{card.desc}</p>
-            <span className="mt-4 inline-block text-sm font-medium text-[var(--color-accent)] opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0">
+            <span className="mt-4 inline-block -translate-x-1 text-sm font-medium text-[var(--color-accent)] opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100">
               Entrar →
             </span>
           </Link>
