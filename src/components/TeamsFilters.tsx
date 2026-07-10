@@ -115,7 +115,7 @@ export function TeamsFilters({
               if (selectedSplit) params.set("split", selectedSplit);
               startTransition(() => router.push(`/teams?${params.toString()}`));
             }}
-            className="ml-auto rounded-lg px-2.5 py-1 text-xs text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-white/5 transition-colors"
+            className="ml-auto rounded-lg px-2.5 py-1 text-xs text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-2)] transition-colors"
           >
             Limpiar filtros
           </button>

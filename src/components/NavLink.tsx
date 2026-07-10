@@ -13,7 +13,7 @@ export function NavLink({ href, label }: { href: string; label: string }) {
       className={`relative px-3 py-1.5 rounded-md text-sm transition-colors ${
         active
           ? "text-[var(--color-text)]"
-          : "text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-white/5"
+          : "text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-2)]"
       }`}
     >
       {label}

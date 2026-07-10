@@ -1,32 +1,32 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   GoatyDB — Sistema visual (identidad provisional, estética "Hextech")
-   Azul profundo con destellos de color (cian / violeta / oro).
-   Sobrio pero con vida: degradados, brillos suaves y buena legibilidad.
+   GoatyDB — Sistema visual (tema claro, limpio y luminoso)
+   Blancos y azules claros con acentos de color (cian / ámbar / violeta).
+   Aireado y legible, a juego con la marca Goaty (cabras color claro).
    ========================================================================== */
 
 @theme {
   /* Base */
-  --color-bg: #0a0f1e;
-  --color-surface: #121a2e;
-  --color-surface-2: #1a2540;
-  --color-border: #263352;
-  --color-muted: #9aa8c2;
-  --color-text: #eef2fb;
+  --color-bg: #eef4fc; /* azul muy claro casi blanco */
+  --color-surface: #ffffff; /* tarjetas */
+  --color-surface-2: #e8eff9; /* superficies secundarias / hover */
+  --color-border: #d4e1f2;
+  --color-muted: #566581; /* texto secundario legible */
+  --color-text: #12213b; /* texto principal (navy) */
 
-  /* Acentos */
-  --color-accent: #2dd4bf; /* cian/teal — interacción, foco, hover */
-  --color-accent-2: #f5b301; /* oro "goaty" — destacados y trofeos */
-  --color-accent-3: #8b5cf6; /* violeta — profundidad y matices */
-  --color-sky: #57c3ff; /* azul clarito del logo Goaty — cargas y brillos */
+  /* Acentos (elegidos para leerse bien sobre claro) */
+  --color-accent: #0fb0c2; /* cian/teal — interacción, foco, hover */
+  --color-accent-2: #e8930c; /* oro "goaty" (ámbar) — destacados y trofeos */
+  --color-accent-3: #7c3aed; /* violeta — profundidad y matices */
+  --color-sky: #2ba6f0; /* azul clarito del logo Goaty */
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif;
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
@@ -34,11 +34,11 @@ body {
   font-family: var(--font-sans);
   min-height: 100vh;
   background-color: var(--color-bg);
-  /* Destellos de color fijos que dan profundidad sin restar legibilidad. */
+  /* Destellos de color suaves que dan vida sin restar luminosidad. */
   background-image:
-    radial-gradient(55rem 55rem at 12% -12%, rgba(45, 212, 191, 0.12), transparent 60%),
-    radial-gradient(50rem 50rem at 105% 8%, rgba(139, 92, 246, 0.14), transparent 55%),
-    radial-gradient(45rem 45rem at 50% 118%, rgba(245, 179, 1, 0.07), transparent 60%);
+    radial-gradient(55rem 55rem at 12% -12%, rgba(43, 166, 240, 0.14), transparent 60%),
+    radial-gradient(50rem 50rem at 105% 8%, rgba(124, 58, 237, 0.09), transparent 55%),
+    radial-gradient(45rem 45rem at 50% 118%, rgba(232, 147, 12, 0.07), transparent 60%);
   background-attachment: fixed;
 }
 
@@ -46,7 +46,7 @@ body {
    Utilidades reutilizables
    -------------------------------------------------------------------------- */
 
-/* Texto con degradado oro → cian, para titulares. */
+/* Texto con degradado ámbar → cian, para titulares y cifras. */
 .text-gradient {
   background-image: linear-gradient(92deg, var(--color-accent-2), var(--color-accent));
   -webkit-background-clip: text;
@@ -54,16 +54,19 @@ body {
   color: transparent;
 }
 
-/* Tarjeta base translúcida (deja ver el fondo con color). */
+/* Tarjeta base: blanca translúcida con sombra suave (profundidad en claro). */
 .card {
-  background-color: color-mix(in oklab, var(--color-surface) 82%, transparent);
+  background-color: color-mix(in oklab, var(--color-surface) 88%, transparent);
   border: 1px solid var(--color-border);
   border-radius: 0.9rem;
+  box-shadow:
+    0 1px 2px rgba(18, 33, 59, 0.04),
+    0 12px 28px -20px rgba(18, 33, 59, 0.18);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
 
-/* Efecto al pasar el ratón: elevación + borde de acento + brillo. */
+/* Efecto al pasar el ratón: elevación + borde de acento + brillo azul. */
 .card-hover {
   transition:
     transform 0.18s ease,
@@ -72,10 +75,10 @@ body {
 }
 .card-hover:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--color-accent) 55%, var(--color-border));
+  border-color: color-mix(in oklab, var(--color-sky) 55%, var(--color-border));
   box-shadow:
-    0 10px 30px -12px rgba(45, 212, 191, 0.25),
-    0 0 0 1px color-mix(in oklab, var(--color-accent) 25%, transparent);
+    0 14px 34px -18px rgba(43, 166, 240, 0.4),
+    0 0 0 1px color-mix(in oklab, var(--color-sky) 25%, transparent);
 }
 
 /* Botón principal con degradado. */
@@ -87,13 +90,13 @@ body {
   padding: 0.55rem 1rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #04141a;
-  background-image: linear-gradient(92deg, var(--color-accent), #38bdf8);
-  box-shadow: 0 8px 24px -10px rgba(45, 212, 191, 0.5);
+  color: #ffffff;
+  background-image: linear-gradient(92deg, var(--color-accent), var(--color-sky));
+  box-shadow: 0 10px 24px -10px rgba(43, 166, 240, 0.55);
   transition: filter 0.15s ease, transform 0.15s ease;
 }
 .btn-primary:hover {
-  filter: brightness(1.06);
+  filter: brightness(1.05);
 }
 .btn-primary:active {
   transform: translateY(1px);
@@ -119,14 +122,13 @@ body {
   border-radius: 9999px;
   background-image: linear-gradient(
     90deg,
-    var(--color-accent),
+    var(--color-sky),
     var(--color-accent-3)
   );
 }
 
 /* --------------------------------------------------------------------------
-   Carga: esqueletos en azul clarito con un brillo que los recorre (shimmer),
-   a juego con el logo. Más claros y "vivos" que un gris plano.
+   Carga: esqueletos en azul clarito con un brillo que los recorre (shimmer).
    -------------------------------------------------------------------------- */
 @keyframes skeleton-shimmer {
   0% {
@@ -139,11 +141,11 @@ body {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background-color: color-mix(in oklab, var(--color-sky) 16%, var(--color-surface-2));
+  background-color: color-mix(in oklab, var(--color-sky) 20%, var(--color-surface-2));
   background-image: linear-gradient(
     100deg,
     transparent 25%,
-    color-mix(in oklab, var(--color-sky) 45%, transparent) 50%,
+    color-mix(in oklab, var(--color-sky) 40%, transparent) 50%,
     transparent 75%
   );
   background-size: 200% 100%;
@@ -160,12 +162,12 @@ body {
   0%,
   100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 0 rgba(87, 195, 255, 0));
-    opacity: 0.9;
+    filter: drop-shadow(0 0 0 rgba(43, 166, 240, 0));
+    opacity: 0.92;
   }
   50% {
     transform: scale(1.06);
-    filter: drop-shadow(0 0 18px rgba(87, 195, 255, 0.55));
+    filter: drop-shadow(0 0 18px rgba(43, 166, 240, 0.5));
     opacity: 1;
   }
 }

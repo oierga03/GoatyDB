@@ -67,7 +67,7 @@ export default async function HomePage() {
           <Logo size={132} />
         </div>
 
-        <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-white/5 px-3 py-1 text-xs text-[var(--color-muted)]">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-2)] px-3 py-1 text-xs text-[var(--color-muted)]">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-sky)]" />
           Base de datos de Hextech · Split 2 2026
         </span>

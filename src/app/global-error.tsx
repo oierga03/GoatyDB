@@ -20,8 +20,8 @@ export default function GlobalError({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0a0f1e",
-          color: "#eef2fb",
+          background: "#eef4fc",
+          color: "#12213b",
           fontFamily: "system-ui, sans-serif",
           textAlign: "center",
           padding: "1.5rem",
@@ -34,7 +34,7 @@ export default function GlobalError({
           <h1 style={{ fontSize: "1.5rem", margin: "0.75rem 0 0.25rem" }}>
             Error inesperado
           </h1>
-          <p style={{ color: "#9aa8c2", maxWidth: 420, margin: "0 auto" }}>
+          <p style={{ color: "#566581", maxWidth: 420, margin: "0 auto" }}>
             La aplicación ha encontrado un problema. Vuelve a intentarlo.
           </p>
           <button
@@ -47,8 +47,8 @@ export default function GlobalError({
               border: "none",
               cursor: "pointer",
               fontWeight: 600,
-              color: "#04141a",
-              background: "linear-gradient(92deg, #2dd4bf, #38bdf8)",
+              color: "#ffffff",
+              background: "linear-gradient(92deg, #0fb0c2, #2ba6f0)",
             }}
           >
             Reintentar
