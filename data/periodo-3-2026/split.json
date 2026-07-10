@@ -1,0 +1,32 @@
+{
+  "season": {
+    "name": "2026",
+    "year": 2026,
+    "startDate": "2026-01-15",
+    "endDate": "2026-12-15"
+  },
+  "split": {
+    "name": "Periodo 3 2026",
+    "sequenceNumber": 3,
+    "status": "ACTIVE",
+    "startDate": "2026-07-12",
+    "endDate": "2026-09-30"
+  },
+  "competition": {
+    "name": "Hextech",
+    "organizer": "Hextech Community",
+    "region": "EU",
+    "game": "League of Legends"
+  },
+  "edition": {
+    "name": "Hextech · Periodo 3 2026",
+    "status": "ACTIVE"
+  },
+  "divisions": [
+    { "name": "División 1", "level": 1 },
+    { "name": "División 2", "level": 2 },
+    { "name": "División 3", "level": 3 },
+    { "name": "División 4", "level": 4 },
+    { "name": "División 5", "level": 5 }
+  ]
+}
