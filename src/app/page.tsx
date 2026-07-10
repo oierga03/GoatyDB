@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Logo } from "@/components/Logo";
+import { TeamAvatar } from "@/components/TeamAvatar";
+import { TEAM, SOCIALS } from "@/lib/team";
 
 const CARDS = [
   {
@@ -132,6 +134,81 @@ export default async function HomePage() {
             </span>
           </Link>
         ))}
+      </section>
+
+      {/* Somos Goaty Esports — comunidad + redes */}
+      <section className="card relative overflow-hidden p-6 sm:p-8">
+        <div
+          className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full opacity-30 blur-3xl"
+          style={{ background: "rgba(87,195,255,0.5)" }}
+        />
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
+          {/* Texto + redes */}
+          <div>
+            <div className="accent-rule mb-4 w-16" />
+            <h2 className="text-2xl font-bold sm:text-3xl">
+              Somos <span className="text-gradient">Goaty Esports</span>
+            </h2>
+            <p className="mt-3 max-w-xl text-sm text-[var(--color-muted)] sm:text-base">
+              Equipo amateur de League of Legends. Creamos contenido con{" "}
+              <span className="text-[var(--color-text)]">Goatcast</span> y, sobre
+              todo, hacemos comunidad. Síguenos para apoyar el proyecto y entra
+              al Discord para enterarte de todo y jugar{" "}
+              <span className="text-[var(--color-text)]">inhouses</span> con
+              nosotros. 🐐
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {SOCIALS.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card card-hover flex items-center gap-3 p-3"
+                >
+                  <svg
+                    width={24}
+                    height={24}
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden
+                    className="shrink-0 text-[var(--color-sky)]"
+                  >
+                    <path d={s.path} />
+                  </svg>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold">
+                      {s.label}
+                    </span>
+                    <span className="block text-xs text-[var(--color-muted)]">
+                      {s.sub}
+                    </span>
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Equipo */}
+          <div className="flex justify-center gap-5 sm:gap-8">
+            {TEAM.map((m) => (
+              <div key={m.name} className="text-center">
+                <div className="mx-auto w-fit">
+                  <TeamAvatar
+                    src={m.src}
+                    initial={m.initial}
+                    tint={m.tint}
+                    size={84}
+                  />
+                </div>
+                <div className="mt-2 text-sm font-semibold">{m.name}</div>
+                <div className="text-[0.7rem] uppercase tracking-wide text-[var(--color-muted)]">
+                  Cofundador
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
     </div>
   );
