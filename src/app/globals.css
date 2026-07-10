@@ -1,23 +1,24 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   GoatyDB — Sistema visual (Tema Oscuro Profesional / Estilo eSports)
-   Paleta de colores de Goaty
+   GoatyDB — Sistema visual (Soft Light Mode / Modo Claro Suave)
+   Fondo orgánico y relajante usando tonos hueso, contrastes nítidos 
+   y acentos vibrantes en cian y rosa.
    ========================================================================== */
 
 @theme {
   /* Base */
-  --color-bg: #0D0D0D;           /* Fondo principal ultra oscuro */
-  --color-surface: #181818;      /* Tarjetas y contenedores (Gris muy oscuro) */
-  --color-surface-2: #242424;    /* Superficies secundarias / Hover */
-  --color-border: #333333;       /* Bordes integrados en el fondo */
+  --color-bg: #F2EEE9;           /* Fondo principal: Blanco roto/Hueso (cero fatiga visual) */
+  --color-surface: #FFFFFF;      /* Tarjetas: Blanco puro para que resalten sobre el fondo */
+  --color-surface-2: #EBE5DF;    /* Superficies secundarias / Hover (un tono hueso más oscuro) */
+  --color-border: #DFD7CE;       /* Bordes suaves y orgánicos */
   --color-muted: #8C6249;        /* Texto secundario / Detalles de tierra */
-  --color-text: #F2EEE9;         /* Texto principal (Blanco roto / Hueso) */
+  --color-text: #0D0D0D;         /* Texto principal: Negro profundo para máxima legibilidad */
 
   /* Acentos competitivos */
-  --color-accent: #63BBF2;       /* Cian/Azul — Interacción principal, focos y glow */
-  --color-accent-2: #F27289;     /* Rosa — Énfasis, alertas, destacados y estatus */
-  --color-accent-3: #8C6249;     /* Marrón Marfil — Profundidad y matices sutiles */
+  --color-accent: #63BBF2;       /* Cian/Azul — Interacción principal y focos activos */
+  --color-accent-2: #F27289;     /* Rosa — Énfasis, destacados y alertas */
+  --color-accent-3: #8C6249;     /* Marrón — Identidad y profundidad */
   --color-sky: #63BBF2;          /* Sincronizado con tu azul de marca principal */
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
@@ -25,7 +26,7 @@
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
@@ -33,11 +34,11 @@ body {
   font-family: var(--font-sans);
   min-height: 100vh;
   background-color: var(--color-bg);
-  /* Destellos de color Cyberpunk adaptados a la nueva paleta oscura */
+  /* Degradados suaves que añaden color sin cegar al usuario */
   background-image:
-    radial-gradient(55rem 55rem at 12% -12%, rgba(99, 187, 242, 0.12), transparent 60%),
-    radial-gradient(50rem 50rem at 105% 8%, rgba(242, 114, 137, 0.08), transparent 55%),
-    radial-gradient(45rem 45rem at 50% 118%, rgba(140, 98, 73, 0.1), transparent 60%);
+    radial-gradient(55rem 55rem at 12% -12%, rgba(99, 187, 242, 0.15), transparent 60%),
+    radial-gradient(50rem 50rem at 105% 8%, rgba(242, 114, 137, 0.1), transparent 55%),
+    radial-gradient(45rem 45rem at 50% 118%, rgba(140, 98, 73, 0.08), transparent 60%);
   background-attachment: fixed;
 }
 
@@ -45,7 +46,7 @@ body {
    Utilidades reutilizables
    -------------------------------------------------------------------------- */
 
-/* Texto con degradado Rosa → Cian, único y agresivo */
+/* Texto con degradado Rosa → Cian */
 .text-gradient {
   background-image: linear-gradient(92deg, var(--color-accent-2), var(--color-accent));
   -webkit-background-clip: text;
@@ -53,19 +54,19 @@ body {
   color: transparent;
 }
 
-/* Tarjeta base: adaptada para fondo oscuro con desenfoque de cristal (glassmorphism) */
+/* Tarjeta base: Blanca, limpia y con una sombra sutil pero elegante */
 .card {
-  background-color: color-mix(in oklab, var(--color-surface) 75%, transparent);
+  background-color: color-mix(in oklab, var(--color-surface) 90%, transparent);
   border: 1px solid var(--color-border);
   border-radius: 0.9rem;
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.5),
-    0 12px 28px -20px rgba(0, 0, 0, 0.7);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+    0 1px 2px rgba(13, 13, 13, 0.03),
+    0 12px 28px -20px rgba(140, 98, 73, 0.15);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
 
-/* Efecto Hover: elevación e iluminación perimetral Cian (#63BBF2) estilo eSports */
+/* Efecto Hover: Elevación con un sutil halo azul/cian */
 .card-hover {
   transition:
     transform 0.18s ease,
@@ -74,13 +75,13 @@ body {
 }
 .card-hover:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--color-accent) 65%, var(--color-border));
+  border-color: color-mix(in oklab, var(--color-accent) 50%, var(--color-border));
   box-shadow:
-    0 14px 34px -18px rgba(99, 187, 242, 0.3),
-    0 0 8px 1px rgba(99, 187, 242, 0.15);
+    0 14px 34px -18px rgba(99, 187, 242, 0.4),
+    0 0 0 1px color-mix(in oklab, var(--color-accent) 20%, transparent);
 }
 
-/* Botón principal con degradado reactivo utilizando tu paleta */
+/* Botón principal: Texto en el blanco roto (#F2EEE9) sobre el degradado vibrante */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -89,13 +90,13 @@ body {
   padding: 0.55rem 1rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #0D0D0D; /* Texto oscuro para contraste sobre el botón luminoso */
+  color: var(--color-bg); /* Usa el fondo claro para contrastar con el botón oscuro/saturado */
   background-image: linear-gradient(92deg, var(--color-accent-2), var(--color-accent));
   box-shadow: 0 10px 24px -10px rgba(99, 187, 242, 0.4);
   transition: filter 0.15s ease, transform 0.15s ease;
 }
 .btn-primary:hover {
-  filter: brightness(1.15);
+  filter: brightness(0.95); /* En modo claro, oscurecemos un pelo al hacer hover */
 }
 .btn-primary:active {
   transform: translateY(1px);
@@ -129,7 +130,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   Carga: esqueletos oscuros con pulso tecnológico cian alternado
+   Carga: Esqueletos suaves que combinan con el tono hueso
    -------------------------------------------------------------------------- */
 @keyframes skeleton-shimmer {
   0% {
@@ -142,11 +143,11 @@ body {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background-color: var(--color-surface);
+  background-color: var(--color-surface-2);
   background-image: linear-gradient(
     100deg,
     transparent 25%,
-    color-mix(in oklab, var(--color-accent) 15%, transparent) 50%,
+    color-mix(in oklab, var(--color-accent) 20%, transparent) 50%,
     transparent 75%
   );
   background-size: 200% 100%;
@@ -158,7 +159,7 @@ body {
   }
 }
 
-/* Logo "respirando" (Efecto neon Glow Cian) */
+/* Logo "respirando" con un sutil resplandor cian */
 @keyframes goaty-pulse {
   0%,
   100% {
@@ -168,7 +169,7 @@ body {
   }
   50% {
     transform: scale(1.04);
-    filter: drop-shadow(0 0 15px rgba(99, 187, 242, 0.4));
+    filter: drop-shadow(0 0 12px rgba(99, 187, 242, 0.3));
     opacity: 1;
   }
 }

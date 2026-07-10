@@ -150,7 +150,7 @@ export default async function HomePage() {
               Somos <span className="text-gradient">Goaty Esports</span>
             </h2>
             <p className="mt-3 max-w-xl text-sm text-[var(--color-muted)] sm:text-base">
-              Equipo amateur de League of Legends. Creamos contenido con{" "}
+              Equipo amateur de League of Legends. Creamos contenido con el{" "}
               <span className="text-[var(--color-text)]">Goatcast</span> y, sobre
               todo, hacemos comunidad. Síguenos para apoyar el proyecto y entra
               al Discord para enterarte de todo y jugar{" "}
