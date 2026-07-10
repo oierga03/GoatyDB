@@ -1,0 +1,552 @@
+// =============================================================================
+// GoatyDB — Esquema de base de datos
+// =============================================================================
+// Plataforma pública de referencia para el amateur de Hextech / League of Legends.
+//
+// FILOSOFÍA DEL MODELO
+// --------------------
+// El dato importante en esta primera versión es la PARTICIPACIÓN HISTÓRICA:
+// qué jugadores participaron, en qué equipo, con qué rol, en qué división,
+// cómo quedó su equipo y qué premios ganaron.
+//
+// La identidad real es el ID (UUID), NUNCA el nick. Los nicks/nombres pueden
+// cambiar con el tiempo y se guardan como alias.
+//
+// Todo está pensado para crecer por SPLITS: hoy solo hay un split cargado,
+// pero la estructura permite añadir más sin cambios de modelo.
+//
+// LO QUE LLEGARÁ DESPUÉS (NO implementado a propósito en esta fase):
+//   - Partidos (Match) y mapas (Game/Map).
+//   - Estadísticas de rendimiento (KDA, oro, daño, etc.).
+//   - Rankings y clasificaciones calculadas.
+//   - Importadores automáticos de datos.
+//   - Fantasy / bolsa de jugadores / mercado de fichajes.
+//   - Sistema automático de asignación de premios.
+// Cuando llegue ese momento se añadirán nuevos modelos que se relacionarán
+// con TeamEntry, RosterMembership y Split, sin romper lo actual.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// ENUMS
+// -----------------------------------------------------------------------------
+
+/// Roles de juego. FLEX = rol variable/no fijo. UNKNOWN = desconocido.
+enum PlayerRole {
+  TOP
+  JUNGLE
+  MID
+  ADC
+  SUPPORT
+  FLEX
+  UNKNOWN
+}
+
+/// Estado general de un jugador dentro de la plataforma.
+enum PlayerStatus {
+  ACTIVE
+  INACTIVE
+  RETIRED
+}
+
+/// Estado general de un equipo dentro de la plataforma.
+enum TeamStatus {
+  ACTIVE
+  INACTIVE
+  DISBANDED
+}
+
+/// Ciclo de vida de un Split (y reutilizado por CompetitionEdition).
+enum SplitStatus {
+  UPCOMING
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+/// Resultado final de un equipo en un split concreto.
+enum TeamEntryResult {
+  CHAMPION
+  RUNNER_UP
+  SEMIFINALIST
+  QUARTERFINALIST
+  PLAYOFFS
+  GROUP_STAGE
+  PARTICIPATED
+  WITHDRAWN
+  DISQUALIFIED
+  UNKNOWN
+}
+
+/// Estado de la participación de un equipo durante el split.
+enum TeamEntryStatus {
+  ACTIVE
+  ELIMINATED
+  WITHDRAWN
+  DISQUALIFIED
+  COMPLETED
+}
+
+/// Rol/posición de un jugador dentro de un roster concreto.
+enum RosterStatus {
+  STARTER
+  SUBSTITUTE
+  SIXTH
+  CAPTAIN // Capitán del equipo. Ambiguo: puede ser jugador o no. Se resolverá con los datos de partidas.
+  COACH
+  MANAGER
+  ANALYST
+  STAFF // Cargo genérico no jugador (propietario, CEO, mánager…).
+  INACTIVE
+}
+
+/// Ámbito de un premio.
+enum AwardScopeType {
+  SPLIT
+  DIVISION
+  MATCHDAY
+  OTHER
+}
+
+/// Categoría de un premio.
+enum AwardCategory {
+  MVP
+  EXECUTOR
+  ASSISTANT
+  ALL_PRO
+  PERFORMANCE
+  CUSTOM
+}
+
+// -----------------------------------------------------------------------------
+// JUGADORES
+// -----------------------------------------------------------------------------
+
+/// Jugador único. La identidad es el `id`, no el nick.
+model Player {
+  id          String       @id @default(uuid())
+  displayName String // Nick de LoL con el que se le muestra.
+  slug        String       @unique
+  primaryRole PlayerRole   @default(UNKNOWN)
+  riotId      String? // Cuenta real de Riot (GameName#TAG), vía OP.GG.
+  opggUrl     String? // Enlace a su OP.GG.
+  status      PlayerStatus @default(ACTIVE)
+  // Creado automáticamente desde un marcador sin poder confirmar su identidad
+  // (posible rename o suplente). Pendiente de revisión / puede fusionarse.
+  needsReview Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  aliases           PlayerAlias[]
+  rosterMemberships RosterMembership[]
+  awards            AwardRecipient[]
+  gameStats         PlayerGameStat[]
+  reports           Report[]
+
+  @@index([primaryRole])
+  @@index([needsReview])
+}
+
+/// Nicks históricos de un jugador. Preparado para el futuro; hoy apenas se usa.
+model PlayerAlias {
+  id        String    @id @default(uuid())
+  playerId  String
+  alias     String
+  isPrimary Boolean   @default(false)
+  validFrom DateTime?
+  validTo   DateTime?
+
+  // Los alias pertenecen al jugador: si se borra el jugador, se borran sus alias.
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@index([playerId])
+  @@index([alias])
+}
+
+// -----------------------------------------------------------------------------
+// EQUIPOS
+// -----------------------------------------------------------------------------
+
+/// Equipo único.
+model Team {
+  id          String     @id @default(uuid())
+  name        String
+  shortName   String?
+  slug        String     @unique
+  logoUrl     String?
+  foundedYear Int? // Año de fundación del equipo (ej. 2020), si se conoce.
+  status      TeamStatus @default(ACTIVE)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  aliases       TeamAlias[]
+  entries       TeamEntry[]
+  matchesAsTeamA Match[]         @relation("MatchTeamA")
+  matchesAsTeamB Match[]         @relation("MatchTeamB")
+  gameStats      PlayerGameStat[]
+}
+
+/// Nombres históricos de un equipo. Preparado para futuros cambios de nombre.
+model TeamAlias {
+  id        String    @id @default(uuid())
+  teamId    String
+  name      String
+  shortName String?
+  validFrom DateTime?
+  validTo   DateTime?
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+}
+
+// -----------------------------------------------------------------------------
+// TEMPORADAS / SPLITS / COMPETICIÓN
+// -----------------------------------------------------------------------------
+
+/// Temporada. Ejemplo: 2026.
+model Season {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  year      Int
+  startDate DateTime?
+  endDate   DateTime?
+
+  splits Split[]
+}
+
+/// Split. Ejemplo: "Split 2 2026".
+model Split {
+  id             String      @id @default(uuid())
+  seasonId       String
+  name           String
+  slug           String      @unique
+  sequenceNumber Int
+  startDate      DateTime?
+  endDate        DateTime?
+  status         SplitStatus @default(UPCOMING)
+
+  season   Season               @relation(fields: [seasonId], references: [id], onDelete: Restrict)
+  editions CompetitionEdition[]
+  // Un premio puede estar ligado directamente a un split (ámbito SPLIT).
+  awards   AwardEdition[]
+  matches  Match[]
+
+  @@index([seasonId])
+}
+
+/// Competición. Aunque hoy solo exista "Hextech", queda preparado para más.
+model Competition {
+  id        String  @id @default(uuid())
+  name      String
+  slug      String  @unique
+  organizer String?
+  region    String?
+  game      String  @default("League of Legends")
+  isActive  Boolean @default(true)
+
+  editions CompetitionEdition[]
+}
+
+/// Una competición dentro de un split concreto. Ej: "Hextech · Split 2 2026".
+model CompetitionEdition {
+  id            String      @id @default(uuid())
+  competitionId String
+  splitId       String
+  name          String
+  slug          String      @unique
+  status        SplitStatus @default(UPCOMING)
+
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Restrict)
+  split       Split       @relation(fields: [splitId], references: [id], onDelete: Restrict)
+  divisions   Division[]
+
+  // Una competición solo tiene una edición por split.
+  @@unique([competitionId, splitId])
+  @@index([splitId])
+}
+
+/// División dentro de una edición. Ej: "División 1".. "División 4".
+model Division {
+  id                   String @id @default(uuid())
+  competitionEditionId String
+  name                 String
+  level                Int // 1 = máxima categoría; números mayores = categorías inferiores.
+  displayOrder         Int    @default(0)
+
+  edition     CompetitionEdition @relation(fields: [competitionEditionId], references: [id], onDelete: Cascade)
+  groups      Group[]
+  teamEntries TeamEntry[]
+  // Un premio puede acotarse a una división (ámbito DIVISION).
+  awards      AwardEdition[]
+  matches     Match[]
+
+  // Dentro de una edición, el nombre de división es único (clave natural para importar).
+  @@unique([competitionEditionId, name])
+  @@index([competitionEditionId])
+}
+
+/// Grupo dentro de una división. Opcional: no todas las divisiones tienen grupos.
+model Group {
+  id           String @id @default(uuid())
+  divisionId   String
+  name         String
+  displayOrder Int    @default(0)
+
+  division    Division    @relation(fields: [divisionId], references: [id], onDelete: Cascade)
+  teamEntries TeamEntry[]
+
+  // Nombre de grupo único dentro de su división (clave natural para importar).
+  @@unique([divisionId, name])
+  @@index([divisionId])
+}
+
+// -----------------------------------------------------------------------------
+// PARTICIPACIÓN HISTÓRICA (el corazón del modelo)
+// -----------------------------------------------------------------------------
+
+/// Participación de un equipo en una división concreta durante un split concreto.
+/// Ej: "AZE · Hextech · Split 2 2026 · División 3 · Campeón".
+model TeamEntry {
+  id            String          @id @default(uuid())
+  teamId        String
+  divisionId    String
+  groupId       String?
+  entryName     String? // Nombre puntual del equipo en este split, si difiere del oficial.
+  finalPosition Int?
+  finalResult   TeamEntryResult @default(UNKNOWN)
+  // Récord de la fase de grupos / suizo (victorias-derrotas). Ej: 2-0, 3-1.
+  groupWins     Int?
+  groupLosses   Int?
+  status        TeamEntryStatus @default(ACTIVE)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  // Restrict: no permitimos borrar equipos/divisiones que tengan histórico.
+  team     Team      @relation(fields: [teamId], references: [id], onDelete: Restrict)
+  division Division  @relation(fields: [divisionId], references: [id], onDelete: Restrict)
+  group    Group?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
+  rosterMemberships RosterMembership[]
+  awardRecipients   AwardRecipient[]
+
+  // Un equipo participa una sola vez por división (clave natural para importar).
+  @@unique([teamId, divisionId])
+  @@index([teamId])
+  @@index([divisionId])
+  @@index([groupId])
+}
+
+/// Relaciona a un jugador con un TeamEntry (su paso por un equipo en un split).
+/// Ej: "Oier · AZE · Split 2 2026 · Mid · Titular".
+/// NO se bloquea que un jugador esté en dos equipos dentro del mismo split
+/// (fichajes / cambios de roster en el futuro).
+model RosterMembership {
+  id           String       @id @default(uuid())
+  playerId     String
+  teamEntryId  String
+  role         PlayerRole   @default(UNKNOWN)
+  rosterStatus RosterStatus @default(STARTER)
+  isCaptain    Boolean      @default(false)
+  joinedAt     DateTime?
+  leftAt       DateTime?
+  notes        String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // Restrict al jugador: protege su histórico. Cascade desde el TeamEntry:
+  // las líneas de roster no tienen sentido sin su entry.
+  player    Player    @relation(fields: [playerId], references: [id], onDelete: Restrict)
+  teamEntry TeamEntry @relation(fields: [teamEntryId], references: [id], onDelete: Cascade)
+
+  // Un jugador tiene una única línea por TeamEntry (clave natural para importar).
+  // Sigue permitiendo estar en dos equipos distintos del mismo split (entries distintos).
+  @@unique([playerId, teamEntryId])
+  @@index([playerId])
+  @@index([teamEntryId])
+}
+
+// -----------------------------------------------------------------------------
+// PREMIOS (Hall of Fame)
+// -----------------------------------------------------------------------------
+
+/// Catálogo/definición de un premio. Ej: "MVP del Split", "Ejecutor de Jornada".
+model AwardDefinition {
+  id              String         @id @default(uuid())
+  name            String
+  slug            String         @unique
+  scopeType       AwardScopeType
+  category        AwardCategory
+  description     String?
+  isFeatured      Boolean        @default(false) // Premios "grandes" a destacar.
+  displayPriority Int            @default(0) // Orden de aparición (mayor = antes).
+
+  editions AwardEdition[]
+}
+
+/// Entrega concreta de un premio. Ej: "MVP del Split · División 3 · Split 2 2026".
+model AwardEdition {
+  id                String    @id @default(uuid())
+  awardDefinitionId String
+  splitId           String?
+  divisionId        String?
+  matchday          Int? // Nº de jornada para premios de ámbito MATCHDAY (1..N).
+  title             String
+  awardedAt         DateTime?
+  imageUrl          String?
+  notes             String?
+  createdAt         DateTime  @default(now())
+
+  awardDefinition AwardDefinition @relation(fields: [awardDefinitionId], references: [id], onDelete: Restrict)
+  split           Split?          @relation(fields: [splitId], references: [id], onDelete: SetNull)
+  division        Division?       @relation(fields: [divisionId], references: [id], onDelete: SetNull)
+
+  recipients AwardRecipient[]
+
+  // Título único por definición de premio (clave natural para importar).
+  @@unique([awardDefinitionId, title])
+  @@index([awardDefinitionId])
+  @@index([splitId])
+  @@index([divisionId])
+}
+
+/// Relaciona un premio (edición) con el/los jugador(es) que lo recibieron.
+model AwardRecipient {
+  id             String  @id @default(uuid())
+  awardEditionId String
+  playerId       String
+  teamEntryId    String? // Equipo con el que lo ganó, si aplica.
+  placement      Int     @default(1) // 1 = ganador; >1 para nominados/menciones.
+  citation       String?
+
+  awardEdition AwardEdition @relation(fields: [awardEditionId], references: [id], onDelete: Cascade)
+  player       Player       @relation(fields: [playerId], references: [id], onDelete: Restrict)
+  teamEntry    TeamEntry?   @relation(fields: [teamEntryId], references: [id], onDelete: SetNull)
+
+  // Un jugador aparece una vez por edición de premio (clave natural para importar).
+  @@unique([awardEditionId, playerId])
+  @@index([awardEditionId])
+  @@index([playerId])
+  @@index([teamEntryId])
+}
+
+// -----------------------------------------------------------------------------
+// PARTIDAS (datos de los marcadores de LoL)
+// -----------------------------------------------------------------------------
+
+/// Un enfrentamiento (serie Bo1/Bo3…) entre dos equipos en una jornada o playoff.
+model Match {
+  id         String    @id @default(uuid())
+  splitId    String
+  divisionId String
+  round      String // "Jornada 1"… / "Semifinal" / "Final".
+  matchday   Int? // 1..N para jornadas; null en playoffs.
+  teamAId    String
+  teamBId    String
+  scoreA     Int       @default(0)
+  scoreB     Int       @default(0)
+  winnerSide String? // "A" | "B" (equipo ganador de la serie).
+  playedAt   DateTime?
+  createdAt  DateTime  @default(now())
+
+  split    Split    @relation(fields: [splitId], references: [id], onDelete: Cascade)
+  division Division @relation(fields: [divisionId], references: [id], onDelete: Cascade)
+  teamA    Team     @relation("MatchTeamA", fields: [teamAId], references: [id], onDelete: Restrict)
+  teamB    Team     @relation("MatchTeamB", fields: [teamBId], references: [id], onDelete: Restrict)
+  games    Game[]
+  reports  Report[]
+
+  // Una serie entre dos equipos en una ronda concreta (clave natural para importar).
+  @@unique([splitId, divisionId, round, teamAId, teamBId])
+  @@index([divisionId])
+  @@index([teamAId])
+  @@index([teamBId])
+}
+
+/// Una partida individual dentro de una serie (Match).
+model Game {
+  id              String @id @default(uuid())
+  matchId         String
+  gameNumber      Int
+  winnerSide      String? // "A" | "B".
+  durationSeconds Int?
+
+  match Match            @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  stats PlayerGameStat[]
+
+  @@unique([matchId, gameNumber])
+  @@index([matchId])
+}
+
+/// Rendimiento de un jugador en una partida (una fila del marcador).
+model PlayerGameStat {
+  id       String     @id @default(uuid())
+  gameId   String
+  playerId String
+  teamId   String
+  side     String // "A" | "B".
+  position PlayerRole @default(UNKNOWN) // Top/Jungle/Mid/ADC/Support.
+  champion String
+  kills    Int        @default(0)
+  deaths   Int        @default(0)
+  assists  Int        @default(0)
+  win      Boolean    @default(false)
+
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Restrict)
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Restrict)
+
+  // Un jugador aparece una vez por partida (clave natural para importar).
+  @@unique([gameId, playerId])
+  @@index([playerId])
+  @@index([teamId])
+  @@index([gameId])
+}
+
+// -----------------------------------------------------------------------------
+// REPORTES / CORRECCIONES
+// -----------------------------------------------------------------------------
+// La comunidad puede avisar de datos incorrectos (identidad de un jugador
+// autocreado, rol equivocado, resultado mal, etc.) sin que tengamos que
+// resolver todo a mano por adelantado. Los revisamos y corregimos después.
+
+enum ReportKind {
+  PLAYER_IDENTITY // "este jugador en realidad es X" / cuenta duplicada
+  PLAYER_ROLE // rol/posición incorrecta
+  MATCH_DATA // resultado o marcador incorrecto
+  TEAM_DATA // datos de equipo/roster incorrectos
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+/// Un aviso de la comunidad sobre un dato que debería corregirse.
+model Report {
+  id        String       @id @default(uuid())
+  kind      ReportKind   @default(OTHER)
+  status    ReportStatus @default(OPEN)
+  subject   String? // A qué se refiere (nombre libre) por si no hay relación directa.
+  message   String // Descripción de la corrección.
+  contact   String? // Contacto opcional de quien reporta (Discord/email).
+  playerId  String?
+  matchId   String?
+  createdAt DateTime     @default(now())
+
+  player Player? @relation(fields: [playerId], references: [id], onDelete: SetNull)
+  match  Match?  @relation(fields: [matchId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([playerId])
+}

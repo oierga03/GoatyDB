@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   GoatyDB — Sistema visual (identidad provisional, estética "Hextech")
+   Azul profundo con destellos de color (cian / violeta / oro).
+   Sobrio pero con vida: degradados, brillos suaves y buena legibilidad.
+   ========================================================================== */
+
+@theme {
+  /* Base */
+  --color-bg: #0a0f1e;
+  --color-surface: #121a2e;
+  --color-surface-2: #1a2540;
+  --color-border: #263352;
+  --color-muted: #9aa8c2;
+  --color-text: #eef2fb;
+
+  /* Acentos */
+  --color-accent: #2dd4bf; /* cian/teal — interacción, foco, hover */
+  --color-accent-2: #f5b301; /* oro "goaty" — destacados y trofeos */
+  --color-accent-3: #8b5cf6; /* violeta — profundidad y matices */
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  /* Destellos de color fijos que dan profundidad sin restar legibilidad. */
+  background-image:
+    radial-gradient(55rem 55rem at 12% -12%, rgba(45, 212, 191, 0.12), transparent 60%),
+    radial-gradient(50rem 50rem at 105% 8%, rgba(139, 92, 246, 0.14), transparent 55%),
+    radial-gradient(45rem 45rem at 50% 118%, rgba(245, 179, 1, 0.07), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* --------------------------------------------------------------------------
+   Utilidades reutilizables
+   -------------------------------------------------------------------------- */
+
+/* Texto con degradado oro → cian, para titulares. */
+.text-gradient {
+  background-image: linear-gradient(92deg, var(--color-accent-2), var(--color-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Tarjeta base translúcida (deja ver el fondo con color). */
+.card {
+  background-color: color-mix(in oklab, var(--color-surface) 82%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: 0.9rem;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+/* Efecto al pasar el ratón: elevación + borde de acento + brillo. */
+.card-hover {
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--color-accent) 55%, var(--color-border));
+  box-shadow:
+    0 10px 30px -12px rgba(45, 212, 191, 0.25),
+    0 0 0 1px color-mix(in oklab, var(--color-accent) 25%, transparent);
+}
+
+/* Botón principal con degradado. */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 0.6rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #04141a;
+  background-image: linear-gradient(92deg, var(--color-accent), #38bdf8);
+  box-shadow: 0 8px 24px -10px rgba(45, 212, 191, 0.5);
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+.btn-primary:hover {
+  filter: brightness(1.06);
+}
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+/* Badge genérico (resultados, categorías…). */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 9999px;
+  padding: 0.15rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.25rem;
+  white-space: nowrap;
+}
+
+/* Filete decorativo superior de sección/tarjeta. */
+.accent-rule {
+  height: 3px;
+  border-radius: 9999px;
+  background-image: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-3)
+  );
+}

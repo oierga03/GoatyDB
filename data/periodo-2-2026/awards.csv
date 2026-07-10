@@ -1,0 +1,19 @@
+award_name,award_slug,scope,category,is_featured,display_priority,title,matchday,division,player_nick,player_slug,team,citation,awarded_at,image_url
+MVP del Split,mvp-del-split,SPLIT,MVP,true,100,MVP del Split · Periodo 2 2026,,,TORRESINHO,torresinho-7107,UB,,,/awards/mvp-split.png
+Ejecutor del Split,ejecutor-del-split,SPLIT,EXECUTOR,true,90,Ejecutor del Split · Periodo 2 2026,,,KHADA JINX,khada-jinx-5192,HFA,,,/awards/ejecutor-split.png
+Asistente del Split,asistente-del-split,SPLIT,ASSISTANT,true,80,Asistente del Split · Periodo 2 2026,,,AMAZING JL,ltc-amazingjl-6772,LQC,,,/awards/asistente-split.png
+MVP de Jornada,mvp-de-jornada,MATCHDAY,MVP,false,50,MVP · Jornada 1 · Periodo 2 2026,1,,CUCO,fumatusi-7394,KBA,,,/awards/mvp-j1.png
+MVP de Jornada,mvp-de-jornada,MATCHDAY,MVP,false,50,MVP · Jornada 2 · Periodo 2 2026,2,,REZE,bell-tracker-7300,VYX,,,/awards/mvp-j2.png
+MVP de Jornada,mvp-de-jornada,MATCHDAY,MVP,false,50,MVP · Jornada 3 · Periodo 2 2026,3,,OBSCURITY,obscurity-6192,FE,,,/awards/mvp-j3.png
+MVP de Jornada,mvp-de-jornada,MATCHDAY,MVP,false,50,MVP · Jornada 4 · Periodo 2 2026,4,,KHADA JINX,khada-jinx-5192,HFA,,,/awards/mvp-j4.png
+MVP de Jornada,mvp-de-jornada,MATCHDAY,MVP,false,50,MVP · Jornada 5 · Periodo 2 2026,5,,DEMON,demonchosen-6785,AZE,,,/awards/mvp-j5.png
+Ejecutor de Jornada,ejecutor-de-jornada,MATCHDAY,EXECUTOR,false,40,Ejecutor · Jornada 1 · Periodo 2 2026,1,,CYBERA LYR3,cyberya-lyr3-4547,EQ,,,/awards/ejecutor-j1.png
+Ejecutor de Jornada,ejecutor-de-jornada,MATCHDAY,EXECUTOR,false,40,Ejecutor · Jornada 2 · Periodo 2 2026,2,,ALEX RUSSO,alex-russo-5217,BYE,,,/awards/ejecutor-j2.png
+Ejecutor de Jornada,ejecutor-de-jornada,MATCHDAY,EXECUTOR,false,40,Ejecutor · Jornada 3 · Periodo 2 2026,3,,ELMOSTRADOR,elmostrador777-8982,GAD,,,/awards/ejecutor-j3.png
+Ejecutor de Jornada,ejecutor-de-jornada,MATCHDAY,EXECUTOR,false,40,Ejecutor · Jornada 4 · Periodo 2 2026,4,,RYZZZ,i-miss-her-1563,TFR,,,/awards/ejecutor-j4.png
+Ejecutor de Jornada,ejecutor-de-jornada,MATCHDAY,EXECUTOR,false,40,Ejecutor · Jornada 5 · Periodo 2 2026,5,,HUGH JACKMAN,zpablo-4802,ZEN,,,/awards/ejecutor-j5.png
+Asistente de Jornada,asistente-de-jornada,MATCHDAY,ASSISTANT,false,30,Asistente · Jornada 1 · Periodo 2 2026,1,,BLAKO,blako-3523,CSNR,,,/awards/asistente-j1.png
+Asistente de Jornada,asistente-de-jornada,MATCHDAY,ASSISTANT,false,30,Asistente · Jornada 2 · Periodo 2 2026,2,,ANTALOP,antalop-9520,DEB,,,/awards/asistente-j2.png
+Asistente de Jornada,asistente-de-jornada,MATCHDAY,ASSISTANT,false,30,Asistente · Jornada 3 · Periodo 2 2026,3,,QLON,idk-qlon-6797,IDK,,,/awards/asistente-j3.png
+Asistente de Jornada,asistente-de-jornada,MATCHDAY,ASSISTANT,false,30,Asistente · Jornada 4 · Periodo 2 2026,4,,FELKOV,hgg-felkov-8745,ZRY,,,/awards/asistente-j4.png
+Asistente de Jornada,asistente-de-jornada,MATCHDAY,ASSISTANT,false,30,Asistente · Jornada 5 · Periodo 2 2026,5,,AMAZING JL,ltc-amazingjl-6772,LQC,,,/awards/asistente-j5.png

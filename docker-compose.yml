@@ -1,0 +1,32 @@
+# PostgreSQL local para desarrollo de GoatyDB.
+#
+#   docker compose up -d      # levantar la base de datos en segundo plano
+#   docker compose down       # parar (los datos persisten en el volumen)
+#   docker compose down -v    # parar y BORRAR los datos
+#
+# Credenciales por defecto (coinciden con .env.example):
+#   usuario:  goaty
+#   password: goaty
+#   base:     goatydb
+#   puerto:   5432
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: goatydb-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: goaty
+      POSTGRES_PASSWORD: goaty
+      POSTGRES_DB: goatydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - goatydb_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U goaty -d goatydb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  goatydb_pgdata:
