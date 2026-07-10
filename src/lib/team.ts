@@ -11,9 +11,9 @@ export type TeamMember = {
 };
 
 export const TEAM: TeamMember[] = [
-  { name: "Oier", role: "CEO · Cofundador", initial: "O", tint: "#57c3ff", src: "/team/oier.png" },
-  { name: "Adrián", role: "CEO · Cofundador", initial: "A", tint: "#8b5cf6", src: "/team/adrian.png" },
-  { name: "Jorge", role: "CEO · Cofundador", initial: "J", tint: "#f5b301", src: "/team/jorge.png" },
+  { name: "oierga", role: "CEO · Cofundador", initial: "O", tint: "#57c3ff", src: "/team/oier.png" },
+  { name: "adrimr7", role: "CEO · Cofundador", initial: "A", tint: "#8b5cf6", src: "/team/adrian.png" },
+  { name: "gorke", role: "CEO · Cofundador", initial: "G", tint: "#f5b301", src: "/team/jorge.png" },
 ];
 
 export type Social = {
