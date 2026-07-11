@@ -36,6 +36,134 @@ async function getPlayer(slug: string) {
   });
 }
 
+/// Rango cronológico dentro de un split: jornadas por número, playoffs después.
+function roundRank(m: { matchday: number | null; round: string }): number {
+  if (m.matchday != null) return m.matchday;
+  const r = m.round.toLowerCase();
+  if (r.includes("semifinal")) return 900; // ojo: "semifinal" contiene "final"
+  if (r.includes("final")) return 1000;
+  return 500;
+}
+
+/// Partidas en las que ha jugado, de la más reciente a la más antigua.
+/// Una serie puede tener varios juegos: agrupamos por partida (no por juego).
+async function getPlayerMatches(playerId: string) {
+  const stats = await prisma.playerGameStat.findMany({
+    where: { playerId },
+    select: {
+      teamId: true, // el equipo con el que jugó esa partida
+      game: {
+        select: {
+          match: {
+            select: {
+              id: true,
+              round: true,
+              matchday: true,
+              scoreA: true,
+              scoreB: true,
+              winnerSide: true,
+              teamAId: true,
+              playedAt: true,
+              teamA: { select: { name: true, shortName: true, logoUrl: true } },
+              teamB: { select: { name: true, shortName: true, logoUrl: true } },
+              division: { select: { name: true } },
+              split: { select: { name: true, sequenceNumber: true } },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const byMatch = new Map<
+    string,
+    { match: (typeof stats)[number]["game"]["match"]; teamId: string }
+  >();
+  for (const s of stats) {
+    if (!byMatch.has(s.game.match.id)) {
+      byMatch.set(s.game.match.id, { match: s.game.match, teamId: s.teamId });
+    }
+  }
+
+  return [...byMatch.values()].sort((a, b) => {
+    if (a.match.playedAt && b.match.playedAt) {
+      return b.match.playedAt.getTime() - a.match.playedAt.getTime();
+    }
+    const bySplit = b.match.split.sequenceNumber - a.match.split.sequenceNumber;
+    if (bySplit !== 0) return bySplit;
+    return roundRank(b.match) - roundRank(a.match);
+  });
+}
+
+type PlayerMatch = Awaited<ReturnType<typeof getPlayerMatches>>[number];
+
+function PlayerMatchRow({ entry }: { entry: PlayerMatch }) {
+  const { match, teamId } = entry;
+  const isTeamA = match.teamAId === teamId;
+  const won = match.winnerSide === (isTeamA ? "A" : "B");
+  const type =
+    match.matchday != null ? `Jornada ${match.matchday}` : match.round;
+
+  return (
+    <li>
+      <Link
+        href={`/matches/${match.id}`}
+        className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 transition-colors hover:bg-[var(--color-surface-2)]"
+      >
+        {/* De un vistazo: división y ronda */}
+        <span className="w-32 shrink-0">
+          <span className="block text-xs font-semibold">
+            {match.division.name}
+          </span>
+          <span className="block truncate text-[0.7rem] text-[var(--color-muted)]">
+            {type} · {match.split.name}
+          </span>
+        </span>
+
+        {/* Equipo vs equipo (el suyo, en negrita) */}
+        <span className="flex min-w-0 flex-1 items-center justify-center gap-2 text-sm">
+          <span
+            className={`flex min-w-0 items-center gap-1.5 ${isTeamA ? "font-semibold" : ""}`}
+          >
+            <TeamLogo
+              name={match.teamA.name}
+              shortName={match.teamA.shortName}
+              logoUrl={match.teamA.logoUrl}
+              size={20}
+            />
+            <span className="truncate">{match.teamA.name}</span>
+          </span>
+          <span className="shrink-0 tabular-nums font-bold">
+            {match.scoreA}-{match.scoreB}
+          </span>
+          <span
+            className={`flex min-w-0 items-center gap-1.5 ${!isTeamA ? "font-semibold" : ""}`}
+          >
+            <span className="truncate">{match.teamB.name}</span>
+            <TeamLogo
+              name={match.teamB.name}
+              shortName={match.teamB.shortName}
+              logoUrl={match.teamB.logoUrl}
+              size={20}
+            />
+          </span>
+        </span>
+
+        <span
+          className={`badge shrink-0 ${
+            won
+              ? "bg-emerald-400/15 text-emerald-300 ring-1 ring-inset ring-emerald-400/30"
+              : "bg-red-400/10 text-red-300 ring-1 ring-inset ring-red-400/20"
+          }`}
+        >
+          {won ? "Victoria" : "Derrota"}
+        </span>
+        <span className="shrink-0 text-xs text-[var(--color-muted)]">Ver →</span>
+      </Link>
+    </li>
+  );
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -54,6 +182,7 @@ export default async function PlayerProfilePage({
   const { slug } = await params;
   const player = await getPlayer(slug);
   if (!player) notFound();
+  const matches = await getPlayerMatches(player.id);
 
   // Handle de plataforma (Circuito Tormenta), guardado como alias.
   const ctHandle = player.aliases[0]?.alias ?? null;
@@ -182,6 +311,25 @@ export default async function PlayerProfilePage({
           </ul>
         )}
       </section>
+
+      {/* Partidas jugadas — clic para ver el detalle */}
+      {matches.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold">Partidas</h2>
+            <span className="text-xs text-[var(--color-muted)]">
+              {matches.length}{" "}
+              {matches.length === 1 ? "partida" : "partidas"} · clic para ver el
+              detalle
+            </span>
+          </div>
+          <ul className="card divide-y divide-[var(--color-border)] overflow-hidden">
+            {matches.map((e) => (
+              <PlayerMatchRow key={e.match.id} entry={e} />
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Premios */}
       {player.awards.length > 0 && (
