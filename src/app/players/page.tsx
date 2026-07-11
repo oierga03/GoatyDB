@@ -28,6 +28,15 @@ function parseRole(value?: string): PlayerRole | undefined {
   return undefined;
 }
 
+/// Estados que NO son "jugar": staff y capitán (no confirmado como jugador).
+const NON_PLAYING: RosterStatus[] = [
+  RosterStatus.CAPTAIN,
+  RosterStatus.COACH,
+  RosterStatus.MANAGER,
+  RosterStatus.ANALYST,
+  RosterStatus.STAFF,
+];
+
 export default async function PlayersPage({
   searchParams,
 }: {
@@ -41,54 +50,57 @@ export default async function PlayersPage({
   const PAGE_SIZE = 48;
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
 
-  // Construimos el filtro sobre las participaciones (roster memberships):
-  // cada fila = un jugador en un equipo/división/split concreto.
-  const where: Prisma.RosterMembershipWhereInput = {
-    // Solo jugadores: excluimos staff y capitán (no confirmado como jugador).
-    rosterStatus: {
-      notIn: [
-        RosterStatus.CAPTAIN,
-        RosterStatus.COACH,
-        RosterStatus.MANAGER,
-        RosterStatus.ANALYST,
-        RosterStatus.STAFF,
-      ],
+  // Una fila = UNA PERSONA. Una misma persona puede tener varias participaciones
+  // (un equipo por split), así que filtramos sobre el jugador y luego elegimos
+  // qué participación enseñar.
+  const where: Prisma.PlayerWhereInput = {
+    ...(q ? { displayName: { contains: q, mode: "insensitive" } } : {}),
+    // Debe haber jugado en algún equipo (y cumplir equipo/división si se filtran).
+    rosterMemberships: {
+      some: {
+        rosterStatus: { notIn: NON_PLAYING },
+        ...(teamSlug || divisionName
+          ? {
+              teamEntry: {
+                ...(teamSlug ? { team: { slug: teamSlug } } : {}),
+                ...(divisionName ? { division: { name: divisionName } } : {}),
+              },
+            }
+          : {}),
+      },
     },
-    ...(q ? { player: { displayName: { contains: q, mode: "insensitive" } } } : {}),
-    // El rol vive en la participación (derivado de las partidas de ESE equipo).
-    // Si ahí no hay evidencia, caemos al rol principal del jugador.
+    // El rol puede estar en la participación (derivado de sus partidas de ese
+    // equipo) o, si allí no hay evidencia, en el rol principal del jugador.
     ...(role
       ? {
           OR: [
-            { role },
-            {
-              AND: [
-                { role: PlayerRole.UNKNOWN },
-                { player: { primaryRole: role } },
-              ],
-            },
+            { primaryRole: role },
+            { rosterMemberships: { some: { role } } },
           ],
-        }
-      : {}),
-    ...(teamSlug || divisionName
-      ? {
-          teamEntry: {
-            ...(teamSlug ? { team: { slug: teamSlug } } : {}),
-            ...(divisionName ? { division: { name: divisionName } } : {}),
-          },
         }
       : {}),
   };
 
-  const [total, memberships, teams, divisions] = await Promise.all([
-    prisma.rosterMembership.count({ where }),
-    prisma.rosterMembership.findMany({
+  const [total, players, teams, divisions] = await Promise.all([
+    prisma.player.count({ where }),
+    prisma.player.findMany({
       where,
       include: {
-        player: true,
-        teamEntry: { include: { team: true, division: true } },
+        rosterMemberships: {
+          where: { rosterStatus: { notIn: NON_PLAYING } },
+          include: {
+            teamEntry: {
+              include: {
+                team: true,
+                division: {
+                  include: { edition: { include: { split: true } } },
+                },
+              },
+            },
+          },
+        },
       },
-      orderBy: [{ player: { displayName: "asc" } }],
+      orderBy: [{ displayName: "asc" }],
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),
@@ -126,7 +138,7 @@ export default async function PlayersPage({
       <header className="space-y-1">
         <h1 className="text-2xl font-bold">Jugadores</h1>
         <p className="text-sm text-[var(--color-muted)]">
-          {total} {total === 1 ? "resultado" : "resultados"}
+          {total} {total === 1 ? "jugador" : "jugadores"}
           {totalPages > 1 ? ` · página ${page} de ${totalPages}` : ""}
         </p>
       </header>
@@ -135,47 +147,85 @@ export default async function PlayersPage({
         <PlayersFilters teams={teamOptions} divisions={divisionOptions} />
       </div>
 
-      {memberships.length === 0 ? (
+      {players.length === 0 ? (
         <EmptyState
           title="Sin resultados"
           description="Prueba a cambiar el nick o quitar algún filtro."
         />
       ) : (
-        /* Listado en filas finas: logo del equipo · nombre · división. */
         <ul className="card divide-y divide-[var(--color-border)] overflow-hidden">
-          {memberships.map((m) => {
-            // Rol de esa participación; si no hay, el principal del jugador.
+          {players.map((p) => {
+            // Participaciones de la más reciente a la más antigua.
+            const memberships = [...p.rosterMemberships].sort(
+              (a, b) =>
+                b.teamEntry.division.edition.split.sequenceNumber -
+                a.teamEntry.division.edition.split.sequenceNumber,
+            );
+
+            // Enseñamos la que coincide con el filtro; si no, la más reciente.
+            const shown =
+              memberships.find(
+                (m) =>
+                  (!teamSlug || m.teamEntry.team.slug === teamSlug) &&
+                  (!divisionName || m.teamEntry.division.name === divisionName),
+              ) ?? memberships[0];
+            if (!shown) return null;
+
             const effectiveRole =
-              m.role !== "UNKNOWN" ? m.role : m.player.primaryRole;
+              shown.role !== "UNKNOWN" ? shown.role : p.primaryRole;
+
+            // En qué periodos ha jugado (P2, P3…), sin repetir.
+            const periods = [
+              ...new Set(
+                memberships.map(
+                  (m) => m.teamEntry.division.edition.split.sequenceNumber,
+                ),
+              ),
+            ].sort((a, b) => a - b);
+
             return (
-            <li key={m.id}>
-              <Link
-                href={`/players/${m.player.slug}`}
-                className="group flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-[var(--color-surface-2)]"
-              >
-                <TeamLogo
-                  name={m.teamEntry.team.name}
-                  shortName={m.teamEntry.team.shortName}
-                  logoUrl={m.teamEntry.team.logoUrl}
-                  size={26}
-                />
-                <span className="min-w-0 flex-1 truncate font-medium transition-colors group-hover:text-[var(--color-accent)]">
-                  {m.player.displayName}
-                </span>
-                {/* Rol derivado de las capturas: icono + nombre. */}
-                {effectiveRole !== "UNKNOWN" && (
-                  <span className="hidden shrink-0 items-center gap-1.5 text-xs text-[var(--color-muted)] sm:flex">
-                    <span className="text-[var(--color-accent)]">
-                      <RoleIcon role={effectiveRole} size={16} />
-                    </span>
-                    <span className="w-16">{roleLabel(effectiveRole)}</span>
+              <li key={p.id}>
+                <Link
+                  href={`/players/${p.slug}`}
+                  className="group flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-[var(--color-surface-2)]"
+                  title={`${p.displayName} · ${shown.teamEntry.team.name} · ${shown.teamEntry.division.name}`}
+                >
+                  <TeamLogo
+                    name={shown.teamEntry.team.name}
+                    shortName={shown.teamEntry.team.shortName}
+                    logoUrl={shown.teamEntry.team.logoUrl}
+                    size={26}
+                  />
+                  <span className="min-w-0 flex-1 truncate font-medium transition-colors group-hover:text-[var(--color-accent)]">
+                    {p.displayName}
                   </span>
-                )}
-                <span className="w-20 shrink-0 text-right text-xs text-[var(--color-muted)]">
-                  {m.teamEntry.division.name}
-                </span>
-              </Link>
-            </li>
+
+                  {/* Periodos en los que ha jugado */}
+                  <span className="hidden shrink-0 items-center gap-1 sm:flex">
+                    {periods.map((n) => (
+                      <span
+                        key={n}
+                        className="rounded px-1.5 py-0.5 text-[0.65rem] font-semibold text-[var(--color-muted)] ring-1 ring-inset ring-[var(--color-border)]"
+                        title={`Jugó el Periodo ${n}`}
+                      >
+                        P{n}
+                      </span>
+                    ))}
+                  </span>
+
+                  {effectiveRole !== "UNKNOWN" && (
+                    <span className="hidden shrink-0 items-center gap-1.5 text-xs text-[var(--color-muted)] sm:flex">
+                      <span className="text-[var(--color-accent)]">
+                        <RoleIcon role={effectiveRole} size={16} />
+                      </span>
+                      <span className="w-16">{roleLabel(effectiveRole)}</span>
+                    </span>
+                  )}
+                  <span className="w-20 shrink-0 text-right text-xs text-[var(--color-muted)]">
+                    {shown.teamEntry.division.name}
+                  </span>
+                </Link>
+              </li>
             );
           })}
         </ul>
