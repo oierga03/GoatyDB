@@ -21,7 +21,6 @@ async function getTeam(slug: string) {
     where: { slug },
     include: {
       entries: {
-        orderBy: { createdAt: "desc" },
         include: {
           group: true,
           division: { include: { edition: { include: { split: true } } } },
@@ -32,11 +31,33 @@ async function getTeam(slug: string) {
   });
 }
 
+type MatchRowData = Prisma.MatchGetPayload<{
+  include: { teamA: true; teamB: true; split: true };
+}>;
+
+/// Rango cronológico DENTRO de un split: las jornadas por número y los
+/// playoffs después (semifinal → final). `playedAt` está vacío en los datos
+/// importados, así que derivamos el orden de la ronda.
+function roundRank(m: { matchday: number | null; round: string }): number {
+  if (m.matchday != null) return m.matchday;
+  const r = m.round.toLowerCase();
+  if (r.includes("semifinal")) return 900; // ojo: "semifinal" contiene "final"
+  if (r.includes("final")) return 1000;
+  return 500;
+}
+
+/// Partidas del equipo, de la más reciente a la más antigua.
 async function getMatches(teamId: string) {
-  return prisma.match.findMany({
+  const matches = await prisma.match.findMany({
     where: { OR: [{ teamAId: teamId }, { teamBId: teamId }] },
-    include: { teamA: true, teamB: true },
-    orderBy: [{ matchday: "asc" }, { round: "asc" }],
+    include: { teamA: true, teamB: true, split: true },
+  });
+  return matches.sort((a, b) => {
+    // Si algún día tenemos fecha real, manda ella.
+    if (a.playedAt && b.playedAt) return b.playedAt.getTime() - a.playedAt.getTime();
+    const bySplit = b.split.sequenceNumber - a.split.sequenceNumber;
+    if (bySplit !== 0) return bySplit;
+    return roundRank(b) - roundRank(a);
   });
 }
 
@@ -114,10 +135,6 @@ function RosterRow({ m, staff = false }: { m: Membership; staff?: boolean }) {
   );
 }
 
-type MatchRowData = Prisma.MatchGetPayload<{
-  include: { teamA: true; teamB: true };
-}>;
-
 function MatchRow({ match, teamId }: { match: MatchRowData; teamId: string }) {
   const isTeamA = match.teamAId === teamId;
   const opponent = isTeamA ? match.teamB : match.teamA;
@@ -131,8 +148,13 @@ function MatchRow({ match, teamId }: { match: MatchRowData; teamId: string }) {
         href={`/matches/${match.id}`}
         className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--color-surface-2)] transition-colors"
       >
-        <span className="w-24 shrink-0 text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">
-          {type}
+        <span className="w-28 shrink-0">
+          <span className="block truncate text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">
+            {type}
+          </span>
+          <span className="block truncate text-[0.65rem] text-[var(--color-muted)] opacity-70">
+            {match.split.name}
+          </span>
         </span>
         <span className="text-xs text-[var(--color-muted)]">vs</span>
         <TeamLogo
@@ -163,16 +185,30 @@ function MatchRow({ match, teamId }: { match: MatchRowData; teamId: string }) {
 
 export default async function TeamProfilePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ split?: string }>;
 }) {
   const { slug } = await params;
+  const { split: splitParam } = await searchParams;
   const team = await getTeam(slug);
   if (!team) notFound();
   const matches = await getMatches(team.id);
 
-  const latest = team.entries[0];
-  const roster = latest ? sortRoster(latest.rosterMemberships) : [];
+  // Participaciones del equipo, de la más reciente a la más antigua.
+  const entries = [...team.entries].sort(
+    (a, b) =>
+      b.division.edition.split.sequenceNumber -
+      a.division.edition.split.sequenceNumber,
+  );
+
+  const latest = entries[0];
+  // Split elegido para el roster (?split=...); por defecto, el más reciente.
+  const selected =
+    entries.find((e) => e.division.edition.split.slug === splitParam) ?? latest;
+
+  const roster = selected ? sortRoster(selected.rosterMemberships) : [];
   const players = roster.filter((m) => !isNonPlayer(m.rosterStatus));
   const staff = roster.filter((m) => isNonPlayer(m.rosterStatus));
 
@@ -228,14 +264,42 @@ export default async function TeamProfilePage({
         )}
       </header>
 
-      {/* Roster de la participación más reciente */}
+      {/* Roster — con selector de split si el equipo jugó varios */}
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">
-          Roster{latest ? ` · ${latest.division.edition.split.name}` : ""}
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold">
+            Roster
+            {selected ? ` · ${selected.division.name}` : ""}
+          </h2>
+          {entries.length > 1 && (
+            <nav className="flex flex-wrap gap-2" aria-label="Elegir split">
+              {entries.map((e) => {
+                const s = e.division.edition.split;
+                const active = e.id === selected?.id;
+                return (
+                  <Link
+                    key={e.id}
+                    href={`/teams/${slug}?split=${s.slug}`}
+                    scroll={false}
+                    aria-current={active ? "true" : undefined}
+                    className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                      active
+                        ? "border-[var(--color-accent)] bg-[var(--color-surface-2)] text-[var(--color-text)]"
+                        : "border-[var(--color-border)] text-[var(--color-muted)] hover:border-[var(--color-accent)] hover:text-[var(--color-text)]"
+                    }`}
+                  >
+                    {s.name}
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
+        </div>
+
         {roster.length === 0 ? (
           <p className="text-sm text-[var(--color-muted)]">
-            Sin roster registrado.
+            Sin roster registrado
+            {selected ? ` en ${selected.division.edition.split.name}` : ""}.
           </p>
         ) : (
           <div className="space-y-5">
@@ -267,7 +331,7 @@ export default async function TeamProfilePage({
         )}
       </section>
 
-      {/* Partidas */}
+      {/* Partidas — de la más reciente a la más antigua */}
       {matches.length > 0 && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">Partidas</h2>
@@ -283,7 +347,7 @@ export default async function TeamProfilePage({
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Historial de splits</h2>
         <ul className="space-y-2">
-          {team.entries.map((entry) => (
+          {entries.map((entry) => (
             <li
               key={entry.id}
               className="card flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm"
