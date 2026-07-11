@@ -41,7 +41,16 @@ const rows: Row[] = parse(readFileSync(MASTER, "utf8"), {
   skip_empty_lines: true,
 });
 
+/// "periodo_3/division_4" → "División 4". Es IMPRESCINDIBLE: un equipo puede
+/// jugar en varios splits (P2 y P3), y sin la división el importador no sabe a
+/// qué participación enganchar al jugador.
+function divisionName(raw: string): string {
+  const m = clean(raw).match(/division[_\s-]?(\d+)/i);
+  return m ? `División ${m[1]}` : "";
+}
+
 const header = [
+  "division",
   "team",
   "player_nick",
   "player_display",
@@ -55,6 +64,7 @@ const header = [
 
 const seen = new Set<string>(); // equipo|nombre_ct para deduplicar (p.ej. HARAM)
 const lines: string[] = [header.join(",")];
+let sinDivision = 0;
 
 for (const r of rows) {
   const team = clean(r.equipo);
@@ -64,9 +74,13 @@ for (const r of rows) {
   if (seen.has(key)) continue;
   seen.add(key);
 
+  const division = divisionName(r.division);
+  if (!division) sinDivision++;
+
   const display = gameName(clean(r.nick_lol) || ct);
   lines.push(
     [
+      division,
       team,
       ct, // player_nick = handle de CT (identidad)
       display, // player_display = nick de LoL
@@ -80,6 +94,10 @@ for (const r of rows) {
       .map(csv)
       .join(","),
   );
+}
+
+if (sinDivision > 0) {
+  console.warn(`⚠️  ${sinDivision} filas sin división reconocible en el maestro.`);
 }
 
 writeFileSync(OUT, lines.join("\n") + "\n", "utf8");

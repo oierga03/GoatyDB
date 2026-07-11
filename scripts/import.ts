@@ -27,6 +27,7 @@ import {
   Prisma,
 } from "@prisma/client";
 import { slugify } from "../src/lib/slug";
+import { deriveRoles } from "./roles";
 
 const prisma = new PrismaClient();
 const FRESH = process.argv.includes("--fresh");
@@ -918,6 +919,17 @@ async function main() {
     console.log(`\n⚠️  ${unresolvedMatchPlayers.size} fila(s) del marcador con problemas de datos:`);
     for (const u of [...unresolvedMatchPlayers].sort()) console.log("   -", u);
     console.log("");
+  }
+
+  // --- Roles ----------------------------------------------------------------
+  // OBLIGATORIO al final: la carga de rosters reescribe `RosterMembership.role`
+  // con lo que venga en rosters.csv (el CT no da posiciones → vacío), así que si
+  // no rederivamos aquí, las fichas y el filtro de rol se quedan sin datos.
+  if (!ONLY_AWARDS) {
+    const r = await deriveRoles(prisma);
+    console.log(
+      `🎯  Roles derivados de las partidas: ${r.membershipsWithRole}/${r.totalMemberships} participaciones · ${r.playersWithRole}/${r.totalPlayers} jugadores`,
+    );
   }
 
   // --- Resumen ------------------------------------------------------------
