@@ -55,7 +55,21 @@ export default async function PlayersPage({
       ],
     },
     ...(q ? { player: { displayName: { contains: q, mode: "insensitive" } } } : {}),
-    ...(role ? { role } : {}),
+    // El rol vive en la participación (derivado de las partidas de ESE equipo).
+    // Si ahí no hay evidencia, caemos al rol principal del jugador.
+    ...(role
+      ? {
+          OR: [
+            { role },
+            {
+              AND: [
+                { role: PlayerRole.UNKNOWN },
+                { player: { primaryRole: role } },
+              ],
+            },
+          ],
+        }
+      : {}),
     ...(teamSlug || divisionName
       ? {
           teamEntry: {
@@ -129,7 +143,11 @@ export default async function PlayersPage({
       ) : (
         /* Listado en filas finas: logo del equipo · nombre · división. */
         <ul className="card divide-y divide-[var(--color-border)] overflow-hidden">
-          {memberships.map((m) => (
+          {memberships.map((m) => {
+            // Rol de esa participación; si no hay, el principal del jugador.
+            const effectiveRole =
+              m.role !== "UNKNOWN" ? m.role : m.player.primaryRole;
+            return (
             <li key={m.id}>
               <Link
                 href={`/players/${m.player.slug}`}
@@ -144,13 +162,13 @@ export default async function PlayersPage({
                 <span className="min-w-0 flex-1 truncate font-medium transition-colors group-hover:text-[var(--color-accent)]">
                   {m.player.displayName}
                 </span>
-                {/* Rol derivado de las capturas (solo si lo conocemos). */}
-                {m.player.primaryRole !== "UNKNOWN" && (
-                  <span
-                    className="shrink-0 text-[var(--color-accent)]"
-                    title={roleLabel(m.player.primaryRole)}
-                  >
-                    <RoleIcon role={m.player.primaryRole} size={16} />
+                {/* Rol derivado de las capturas: icono + nombre. */}
+                {effectiveRole !== "UNKNOWN" && (
+                  <span className="hidden shrink-0 items-center gap-1.5 text-xs text-[var(--color-muted)] sm:flex">
+                    <span className="text-[var(--color-accent)]">
+                      <RoleIcon role={effectiveRole} size={16} />
+                    </span>
+                    <span className="w-16">{roleLabel(effectiveRole)}</span>
                   </span>
                 )}
                 <span className="w-20 shrink-0 text-right text-xs text-[var(--color-muted)]">
@@ -158,7 +176,8 @@ export default async function PlayersPage({
                 </span>
               </Link>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
 

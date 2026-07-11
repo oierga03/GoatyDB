@@ -1,9 +1,16 @@
 /**
- * Deriva `Player.primaryRole` a partir de las partidas ya importadas: el rol de
- * un jugador es la posición que MÁS ha jugado en los marcadores (solo las vistas
- * avanzadas traen posición; las normales quedan como UNKNOWN y no cuentan).
+ * Deriva los roles a partir de las partidas ya importadas. Solo las capturas en
+ * "vista avanzada" traen posición; las normales quedan UNKNOWN y no cuentan.
  *
- * Es idempotente: se puede volver a ejecutar tras cada import de partidas.
+ * Rellena dos cosas:
+ *   - `Player.primaryRole`        → posición MÁS jugada por el jugador (global).
+ *   - `RosterMembership.role`     → posición MÁS jugada por ese jugador EN ESE
+ *                                   equipo y split (más preciso; es el campo que
+ *                                   usan las fichas y el filtro del buscador).
+ *
+ * Es idempotente. IMPORTANTE: el importador reescribe `RosterMembership.role`
+ * con lo que venga en rosters.csv (vacío), así que hay que volver a ejecutarlo
+ * DESPUÉS de cada `db:import`:
  *
  *   npm run db:roles
  */
@@ -12,52 +19,111 @@ import { ROLE_ORDER } from "../src/lib/labels";
 
 const prisma = new PrismaClient();
 
+type Counts = Map<PlayerRole, number>;
+
+function bump(map: Map<string, Counts>, key: string, role: PlayerRole) {
+  let c = map.get(key);
+  if (!c) map.set(key, (c = new Map()));
+  c.set(role, (c.get(role) ?? 0) + 1);
+}
+
+/// Posición más jugada. Empate → orden canónico (Top→Support) para ser estable.
+function pick(counts: Counts): PlayerRole {
+  let best: PlayerRole | null = null;
+  let bestGames = -1;
+  for (const [role, games] of counts) {
+    const better =
+      games > bestGames ||
+      (games === bestGames &&
+        ROLE_ORDER.indexOf(role) < ROLE_ORDER.indexOf(best as PlayerRole));
+    if (better) {
+      best = role;
+      bestGames = games;
+    }
+  }
+  return best as PlayerRole;
+}
+
 async function main() {
   console.log("🎯  Derivando roles desde las posiciones de las partidas…");
 
-  // Cuántas veces ha jugado cada jugador en cada posición (ignorando UNKNOWN).
-  const rows = await prisma.playerGameStat.groupBy({
-    by: ["playerId", "position"],
+  const stats = await prisma.playerGameStat.findMany({
     where: { position: { not: PlayerRole.UNKNOWN } },
-    _count: { _all: true },
+    select: {
+      playerId: true,
+      teamId: true,
+      position: true,
+      game: { select: { match: { select: { splitId: true } } } },
+    },
   });
 
-  // playerId -> posición más jugada (empate: el orden canónico Top→Support).
-  const best = new Map<string, { role: PlayerRole; games: number }>();
-  for (const r of rows) {
-    const games = r._count._all;
-    const current = best.get(r.playerId);
-    const isBetter =
-      !current ||
-      games > current.games ||
-      (games === current.games &&
-        ROLE_ORDER.indexOf(r.position) < ROLE_ORDER.indexOf(current.role));
-    if (isBetter) best.set(r.playerId, { role: r.position, games });
+  // Global por jugador, y por (jugador, equipo, split) para cada participación.
+  const byPlayer = new Map<string, Counts>();
+  const byEntry = new Map<string, Counts>();
+  for (const s of stats) {
+    bump(byPlayer, s.playerId, s.position);
+    bump(byEntry, `${s.playerId}|${s.teamId}|${s.game.match.splitId}`, s.position);
   }
 
-  // Solo escribimos si cambia, para no tocar filas de más.
+  // --- Player.primaryRole -------------------------------------------------
   const players = await prisma.player.findMany({
-    where: { id: { in: [...best.keys()] } },
-    select: { id: true, displayName: true, primaryRole: true },
+    where: { id: { in: [...byPlayer.keys()] } },
+    select: { id: true, primaryRole: true },
   });
-
-  let updated = 0;
+  let updatedPlayers = 0;
   for (const p of players) {
-    const role = best.get(p.id)!.role;
+    const role = pick(byPlayer.get(p.id)!);
     if (p.primaryRole === role) continue;
     await prisma.player.update({ where: { id: p.id }, data: { primaryRole: role } });
-    updated++;
+    updatedPlayers++;
   }
 
-  const withRole = await prisma.player.count({
+  // --- RosterMembership.role ---------------------------------------------
+  const memberships = await prisma.rosterMembership.findMany({
+    select: {
+      id: true,
+      role: true,
+      playerId: true,
+      teamEntry: {
+        select: {
+          teamId: true,
+          division: { select: { edition: { select: { splitId: true } } } },
+        },
+      },
+    },
+  });
+  let updatedMemberships = 0;
+  let noEvidence = 0;
+  for (const m of memberships) {
+    const splitId = m.teamEntry.division.edition.splitId;
+    const counts = byEntry.get(`${m.playerId}|${m.teamEntry.teamId}|${splitId}`);
+    if (!counts) {
+      noEvidence++; // no jugó (o solo en vistas normales) → lo dejamos UNKNOWN
+      continue;
+    }
+    const role = pick(counts);
+    if (m.role === role) continue;
+    await prisma.rosterMembership.update({ where: { id: m.id }, data: { role } });
+    updatedMemberships++;
+  }
+
+  const playersWithRole = await prisma.player.count({
     where: { primaryRole: { not: PlayerRole.UNKNOWN } },
   });
-  const total = await prisma.player.count();
+  const totalPlayers = await prisma.player.count();
+  const membershipsWithRole = await prisma.rosterMembership.count({
+    where: { role: { not: PlayerRole.UNKNOWN } },
+  });
+  const totalMemberships = await prisma.rosterMembership.count();
+
   console.log(
-    `✅  Jugadores con posición en partidas: ${best.size} · actualizados: ${updated}`,
+    `✅  Player.primaryRole: ${playersWithRole}/${totalPlayers} con rol (actualizados: ${updatedPlayers})`,
   );
   console.log(
-    `    Total con rol conocido: ${withRole} de ${total} (${Math.round((withRole / total) * 100)}%)`,
+    `✅  RosterMembership.role: ${membershipsWithRole}/${totalMemberships} con rol (actualizados: ${updatedMemberships})`,
+  );
+  console.log(
+    `    ${noEvidence} participaciones sin evidencia en partidas → siguen UNKNOWN`,
   );
 }
 
