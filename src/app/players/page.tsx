@@ -2,9 +2,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { PlayerRole, RosterStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { PlayerAvatar } from "@/components/PlayerAvatar";
-import { RoleTag } from "@/components/RoleTag";
-import { ResultBadge } from "@/components/ResultBadge";
 import { TeamLogo } from "@/components/TeamLogo";
 import { PlayersFilters } from "@/components/PlayersFilters";
 import { EmptyState } from "@/components/EmptyState";
@@ -128,40 +125,26 @@ export default async function PlayersPage({
           description="Prueba a cambiar el nick o quitar algún filtro."
         />
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        /* Listado en filas finas: logo del equipo · nombre · división. */
+        <ul className="card divide-y divide-[var(--color-border)] overflow-hidden">
           {memberships.map((m) => (
             <li key={m.id}>
               <Link
                 href={`/players/${m.player.slug}`}
-                className="card card-hover group flex h-full flex-col gap-3 p-4"
+                className="group flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-[var(--color-surface-2)]"
               >
-                <div className="flex items-center gap-3">
-                  <PlayerAvatar name={m.player.displayName} />
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold group-hover:text-[var(--color-accent)] transition-colors">
-                      {m.player.displayName}
-                    </p>
-                    <div className="mt-0.5 flex items-center gap-1.5 text-sm text-[var(--color-muted)]">
-                      {m.role !== "UNKNOWN" && <RoleTag role={m.role} />}
-                      <TeamLogo
-                        name={m.teamEntry.team.name}
-                        shortName={m.teamEntry.team.shortName}
-                        logoUrl={m.teamEntry.team.logoUrl}
-                        size={18}
-                      />
-                      <span className="truncate">
-                        {m.teamEntry.team.shortName ?? m.teamEntry.team.name}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-auto flex items-center justify-between gap-2 border-t border-[var(--color-border)] pt-3 text-sm">
-                  <span className="text-[var(--color-muted)]">
-                    {m.teamEntry.division.name}
-                  </span>
-                  <ResultBadge result={m.teamEntry.finalResult} />
-                </div>
+                <TeamLogo
+                  name={m.teamEntry.team.name}
+                  shortName={m.teamEntry.team.shortName}
+                  logoUrl={m.teamEntry.team.logoUrl}
+                  size={26}
+                />
+                <span className="min-w-0 flex-1 truncate font-medium transition-colors group-hover:text-[var(--color-accent)]">
+                  {m.player.displayName}
+                </span>
+                <span className="shrink-0 text-xs text-[var(--color-muted)]">
+                  {m.teamEntry.division.name}
+                </span>
               </Link>
             </li>
           ))}
