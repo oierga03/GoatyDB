@@ -29,11 +29,17 @@ const CARDS = [
 ];
 
 export default async function HomePage() {
-  const [players, teams, awards, splits] = await Promise.all([
+  const [players, teams, awards, splits, activeSplit] = await Promise.all([
     prisma.player.count(),
     prisma.team.count(),
     prisma.awardEdition.count(),
     prisma.split.count(),
+    // El split en curso: nada de textos fijos, que se quedan obsoletos.
+    prisma.split.findFirst({
+      where: { status: "ACTIVE" },
+      orderBy: { sequenceNumber: "desc" },
+      select: { name: true },
+    }),
   ]);
 
   const stats = [
@@ -69,7 +75,8 @@ export default async function HomePage() {
 
         <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-2)] px-3 py-1 text-xs text-[var(--color-muted)]">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-sky)]" />
-          Base de datos de Hextech · Split 2 2026
+          Base de datos de Hextech
+          {activeSplit ? ` · ${activeSplit.name} en curso` : ""}
         </span>
 
         <h1 className="mt-5 text-5xl font-extrabold tracking-tight sm:text-7xl">

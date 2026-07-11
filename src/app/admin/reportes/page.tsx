@@ -71,8 +71,8 @@ export default async function AdminReportsPage() {
                   <span
                     className={`badge ${
                       r.status === "OPEN"
-                        ? "bg-amber-400/15 text-amber-300 ring-1 ring-inset ring-amber-400/30"
-                        : "bg-slate-500/10 text-slate-400 ring-1 ring-inset ring-slate-500/20"
+                        ? "bg-amber-600/15 text-amber-800 ring-1 ring-inset ring-amber-600/30"
+                        : "bg-slate-600/10 text-slate-600 ring-1 ring-inset ring-slate-500/20"
                     }`}
                   >
                     {STATUS_LABELS[r.status]}

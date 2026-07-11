@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { roleLabel, rosterStatusLabel, AWARD_SCOPE_LABELS } from "@/lib/labels";
+import { roleLabel, rosterStatusLabel, AWARD_SCOPE_LABELS, WIN_BADGE_CLASS, LOSS_BADGE_CLASS } from "@/lib/labels";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { RoleTag } from "@/components/RoleTag";
 import { ResultBadge } from "@/components/ResultBadge";
@@ -95,6 +95,80 @@ async function getPlayerMatches(playerId: string) {
   });
 }
 
+/// Estadísticas agregadas, calculadas desde los marcadores importados.
+/// Ojo: el campeón solo aparece en las capturas de "vista avanzada", así que
+/// puede haber menos juegos con campeón conocido que juegos totales.
+async function getPlayerStats(playerId: string) {
+  const stats = await prisma.playerGameStat.findMany({
+    where: { playerId },
+    select: {
+      kills: true,
+      deaths: true,
+      assists: true,
+      win: true,
+      champion: true,
+    },
+  });
+  if (stats.length === 0) return null;
+
+  const games = stats.length;
+  const wins = stats.filter((s) => s.win).length;
+  const kills = stats.reduce((n, s) => n + s.kills, 0);
+  const deaths = stats.reduce((n, s) => n + s.deaths, 0);
+  const assists = stats.reduce((n, s) => n + s.assists, 0);
+
+  const byChamp = new Map<string, { games: number; wins: number }>();
+  for (const s of stats) {
+    const name = s.champion.trim();
+    if (!name) continue;
+    const e = byChamp.get(name) ?? { games: 0, wins: 0 };
+    e.games++;
+    if (s.win) e.wins++;
+    byChamp.set(name, e);
+  }
+  const champions = [...byChamp.entries()]
+    .map(([name, v]) => ({ name, ...v }))
+    .sort((a, b) => b.games - a.games || b.wins - a.wins)
+    .slice(0, 8);
+  const champGames = [...byChamp.values()].reduce((n, v) => n + v.games, 0);
+
+  return {
+    games,
+    wins,
+    losses: games - wins,
+    winrate: Math.round((wins / games) * 100),
+    // KDA clásico: (K+A)/D, con D=1 si nunca murió (evita dividir entre cero).
+    kda: (kills + assists) / Math.max(deaths, 1),
+    avgK: kills / games,
+    avgD: deaths / games,
+    avgA: assists / games,
+    champions,
+    champGames,
+  };
+}
+
+/// Métrica de cabecera. El valor va en tinta de texto (nunca coloreado) y con
+/// cifras proporcionales: `tabular-nums` solo en columnas que deben alinearse.
+function StatTile({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+}) {
+  return (
+    <div className="card px-4 py-4">
+      <div className="text-xs text-[var(--color-muted)]">{label}</div>
+      <div className="mt-1 text-2xl font-semibold">{value}</div>
+      {sub && (
+        <div className="mt-0.5 text-xs text-[var(--color-muted)]">{sub}</div>
+      )}
+    </div>
+  );
+}
+
 type PlayerMatch = Awaited<ReturnType<typeof getPlayerMatches>>[number];
 
 function PlayerMatchRow({ entry }: { entry: PlayerMatch }) {
@@ -152,8 +226,8 @@ function PlayerMatchRow({ entry }: { entry: PlayerMatch }) {
         <span
           className={`badge shrink-0 ${
             won
-              ? "bg-emerald-400/15 text-emerald-300 ring-1 ring-inset ring-emerald-400/30"
-              : "bg-red-400/10 text-red-300 ring-1 ring-inset ring-red-400/20"
+              ? WIN_BADGE_CLASS
+              : LOSS_BADGE_CLASS
           }`}
         >
           {won ? "Victoria" : "Derrota"}
@@ -182,7 +256,10 @@ export default async function PlayerProfilePage({
   const { slug } = await params;
   const player = await getPlayer(slug);
   if (!player) notFound();
-  const matches = await getPlayerMatches(player.id);
+  const [matches, stats] = await Promise.all([
+    getPlayerMatches(player.id),
+    getPlayerStats(player.id),
+  ]);
 
   // Handle de plataforma (Circuito Tormenta), guardado como alias.
   const ctHandle = player.aliases[0]?.alias ?? null;
@@ -253,7 +330,7 @@ export default async function PlayerProfilePage({
       </header>
 
       {player.needsReview && (
-        <div className="rounded-xl border border-amber-400/25 bg-amber-400/5 px-4 py-3 text-sm text-amber-200/90">
+        <div className="rounded-xl border border-amber-600/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-900">
           <span aria-hidden>ⓘ</span> Este perfil se generó automáticamente a partir de un
           marcador y su identidad está <strong>pendiente de confirmar</strong> (puede ser un
           cambio de nombre o un suplente). Si sabes de quién se trata,{" "}
@@ -311,6 +388,90 @@ export default async function PlayerProfilePage({
           </ul>
         )}
       </section>
+
+      {/* Estadísticas — números de cabecera (no un gráfico) */}
+      {stats && (
+        <section className="space-y-3">
+          <div className="flex items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold">Estadísticas</h2>
+            <span className="text-xs text-[var(--color-muted)]">
+              Sobre {stats.games} {stats.games === 1 ? "juego" : "juegos"}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatTile
+              label="Juegos"
+              value={String(stats.games)}
+              sub={`${stats.wins}V · ${stats.losses}D`}
+            />
+            <StatTile label="Winrate" value={`${stats.winrate}%`} />
+            <StatTile
+              label="KDA"
+              value={stats.kda.toFixed(2)}
+              sub="(K+A) / D"
+            />
+            <StatTile
+              label="K / D / A por juego"
+              value={`${stats.avgK.toFixed(1)} / ${stats.avgD.toFixed(1)} / ${stats.avgA.toFixed(1)}`}
+            />
+          </div>
+
+          {/* Campeones más jugados. El winrate va como meter de una sola tinta
+              (pista = paso más claro del mismo tono) y SIEMPRE con su cifra:
+              nunca solo color. */}
+          {stats.champions.length > 0 && (
+            <div className="space-y-2 pt-1">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
+                Campeones más jugados
+              </h3>
+              <ul className="card divide-y divide-[var(--color-border)] overflow-hidden">
+                {stats.champions.map((c) => {
+                  const wr = Math.round((c.wins / c.games) * 100);
+                  return (
+                    <li
+                      key={c.name}
+                      className="flex items-center gap-3 px-4 py-2.5"
+                    >
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                        {c.name}
+                      </span>
+                      <span className="w-20 shrink-0 text-right text-xs tabular-nums text-[var(--color-muted)]">
+                        {c.games} {c.games === 1 ? "juego" : "juegos"}
+                      </span>
+                      <span
+                        className="hidden h-1.5 w-24 shrink-0 overflow-hidden rounded-full sm:block"
+                        style={{
+                          background:
+                            "color-mix(in oklab, var(--color-accent) 18%, transparent)",
+                        }}
+                        aria-hidden
+                      >
+                        <span
+                          className="block h-full rounded-full"
+                          style={{
+                            width: `${wr}%`,
+                            background: "var(--color-accent)",
+                          }}
+                        />
+                      </span>
+                      <span className="w-16 shrink-0 text-right text-xs tabular-nums text-[var(--color-muted)]">
+                        {wr}% WR
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+              {stats.champGames < stats.games && (
+                <p className="text-xs text-[var(--color-muted)]">
+                  Campeón conocido en {stats.champGames} de {stats.games} juegos
+                  (solo las capturas en vista avanzada lo muestran).
+                </p>
+              )}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Partidas jugadas — clic para ver el detalle */}
       {matches.length > 0 && (

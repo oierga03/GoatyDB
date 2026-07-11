@@ -182,7 +182,7 @@ export function ReportDialog({
                 </div>
 
                 {status === "error" && (
-                  <p className="text-sm text-red-300">{error}</p>
+                  <p className="text-sm text-red-700">{error}</p>
                 )}
 
                 <div className="flex items-center justify-end gap-2">

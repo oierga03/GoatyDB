@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { ROLE_ORDER } from "@/lib/labels";
+import { ROLE_ORDER, WIN_BADGE_CLASS, LOSS_BADGE_CLASS } from "@/lib/labels";
 import { TeamLogo } from "@/components/TeamLogo";
 import { RoleIcon } from "@/components/RoleIcon";
 import { ReportDialog } from "@/components/ReportDialog";
@@ -173,8 +173,8 @@ function GameSide({
         <span
           className={`badge ${
             win
-              ? "bg-emerald-400/15 text-emerald-300 ring-1 ring-inset ring-emerald-400/30"
-              : "bg-red-400/10 text-red-300 ring-1 ring-inset ring-red-400/20"
+              ? WIN_BADGE_CLASS
+              : LOSS_BADGE_CLASS
           }`}
         >
           {win ? "Victoria" : "Derrota"}

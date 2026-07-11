@@ -114,6 +114,13 @@ export const RESULT_BADGE_CLASS: Record<TeamEntryResult, string> = {
   UNKNOWN: "bg-slate-400/10 text-slate-500 ring-1 ring-inset ring-slate-400/20",
 };
 
+/// Badge del resultado de una PARTIDA (victoria/derrota).
+/// Tema claro: texto oscuro sobre un tinte suave, para que se lea bien.
+export const WIN_BADGE_CLASS =
+  "bg-emerald-600/15 text-emerald-800 ring-1 ring-inset ring-emerald-600/30";
+export const LOSS_BADGE_CLASS =
+  "bg-rose-600/15 text-rose-800 ring-1 ring-inset ring-rose-500/30";
+
 export function resultLabel(result: TeamEntryResult): string {
   return RESULT_LABELS[result] ?? result;
 }

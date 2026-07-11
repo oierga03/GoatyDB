@@ -4,13 +4,7 @@ import { notFound } from "next/navigation";
 import type { PlayerRole, RosterStatus } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import {
-  roleLabel,
-  rosterStatusLabel,
-  ROLE_ORDER,
-  ROSTER_STATUS_GROUP,
-  isNonPlayer,
-} from "@/lib/labels";
+import { roleLabel, rosterStatusLabel, ROLE_ORDER, ROSTER_STATUS_GROUP, isNonPlayer, WIN_BADGE_CLASS, LOSS_BADGE_CLASS } from "@/lib/labels";
 import { TeamLogo } from "@/components/TeamLogo";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { RoleIcon } from "@/components/RoleIcon";
@@ -172,8 +166,8 @@ function MatchRow({ match, teamId }: { match: MatchRowData; teamId: string }) {
         <span
           className={`badge shrink-0 ${
             won
-              ? "bg-emerald-400/15 text-emerald-300 ring-1 ring-inset ring-emerald-400/30"
-              : "bg-red-400/10 text-red-300 ring-1 ring-inset ring-red-400/20"
+              ? WIN_BADGE_CLASS
+              : LOSS_BADGE_CLASS
           }`}
         >
           {won ? "Victoria" : "Derrota"}
