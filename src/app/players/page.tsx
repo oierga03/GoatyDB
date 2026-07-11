@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { PlayerRole, RosterStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { TeamLogo } from "@/components/TeamLogo";
+import { RoleIcon } from "@/components/RoleIcon";
+import { roleLabel } from "@/lib/labels";
 import { PlayersFilters } from "@/components/PlayersFilters";
 import { EmptyState } from "@/components/EmptyState";
 
@@ -142,7 +144,16 @@ export default async function PlayersPage({
                 <span className="min-w-0 flex-1 truncate font-medium transition-colors group-hover:text-[var(--color-accent)]">
                   {m.player.displayName}
                 </span>
-                <span className="shrink-0 text-xs text-[var(--color-muted)]">
+                {/* Rol derivado de las capturas (solo si lo conocemos). */}
+                {m.player.primaryRole !== "UNKNOWN" && (
+                  <span
+                    className="shrink-0 text-[var(--color-accent)]"
+                    title={roleLabel(m.player.primaryRole)}
+                  >
+                    <RoleIcon role={m.player.primaryRole} size={16} />
+                  </span>
+                )}
+                <span className="w-20 shrink-0 text-right text-xs text-[var(--color-muted)]">
                   {m.teamEntry.division.name}
                 </span>
               </Link>
