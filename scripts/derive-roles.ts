@@ -23,6 +23,9 @@ async function main() {
     `✅  RosterMembership.role: ${r.membershipsWithRole}/${r.totalMemberships} con rol (actualizados: ${r.updatedMemberships})`,
   );
   console.log(
+    `   (de los cuales ${r.deduced} deducidos por descarte "4 de 5" en la alineación)`,
+  );
+  console.log(
     `    ${r.noEvidence} participaciones sin evidencia en partidas → siguen UNKNOWN`,
   );
 }

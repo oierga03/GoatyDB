@@ -49,9 +49,19 @@ export type RolesSummary = {
   updatedPlayers: number;
   updatedMemberships: number;
   noEvidence: number;
+  deduced: number;
 };
 
+const LANES: PlayerRole[] = [
+  PlayerRole.TOP,
+  PlayerRole.JUNGLE,
+  PlayerRole.MID,
+  PlayerRole.ADC,
+  PlayerRole.SUPPORT,
+];
+
 export async function deriveRoles(prisma: PrismaClient): Promise<RolesSummary> {
+  // --- Evidencia directa: la posición que traen las capturas avanzadas -------
   const stats = await prisma.playerGameStat.findMany({
     where: { position: { not: PlayerRole.UNKNOWN } },
     select: {
@@ -69,14 +79,80 @@ export async function deriveRoles(prisma: PrismaClient): Promise<RolesSummary> {
     bump(byEntry, `${s.playerId}|${s.teamId}|${s.game.match.splitId}`, s.position);
   }
 
+  // --- Deducción "4 de 5" ---------------------------------------------------
+  // En una alineación hay 5 puestos distintos. Si conocemos 4 y son diferentes,
+  // el quinto SOLO puede ser el que falta: no es adivinar, es descartar. Se
+  // itera porque cada deducción puede desbloquear otra.
+  const deducedRole = new Map<string, PlayerRole>(); // playerId -> rol deducido
+  const deducedEntry = new Map<string, PlayerRole>(); // playerId|teamId|splitId
+
+  const all = await prisma.playerGameStat.findMany({
+    select: {
+      gameId: true,
+      teamId: true,
+      playerId: true,
+      game: { select: { match: { select: { splitId: true } } } },
+    },
+  });
+
+  type Slot = { playerId: string; teamId: string; splitId: string };
+  const lineups = new Map<string, Slot[]>();
+  for (const s of all) {
+    const key = `${s.gameId}|${s.teamId}`;
+    const arr = lineups.get(key) ?? [];
+    arr.push({
+      playerId: s.playerId,
+      teamId: s.teamId,
+      splitId: s.game.match.splitId,
+    });
+    lineups.set(key, arr);
+  }
+
+  const roleFor = (playerId: string): PlayerRole | null => {
+    const counts = byPlayer.get(playerId);
+    if (counts) return pick(counts);
+    return deducedRole.get(playerId) ?? null;
+  };
+
+  for (let pass = 0; pass < 5; pass++) {
+    let added = 0;
+    for (const slots of lineups.values()) {
+      if (slots.length !== 5) continue;
+      const roles = slots.map((s) => roleFor(s.playerId));
+      const missing = roles
+        .map((r, i) => (r ? -1 : i))
+        .filter((i) => i >= 0);
+      if (missing.length !== 1) continue;
+      const have = roles.filter((r): r is PlayerRole => r !== null);
+      if (new Set(have).size !== 4) continue; // los 4 conocidos deben ser distintos
+      const gap = LANES.find((r) => !have.includes(r));
+      if (!gap) continue;
+      const slot = slots[missing[0]];
+      if (deducedRole.has(slot.playerId)) continue;
+      deducedRole.set(slot.playerId, gap);
+      deducedEntry.set(`${slot.playerId}|${slot.teamId}|${slot.splitId}`, gap);
+      added++;
+    }
+    if (added === 0) break;
+  }
+
   // --- Player.primaryRole -------------------------------------------------
+  // La evidencia directa manda; la deducción solo rellena huecos.
+  const finalPlayerRole = new Map<string, PlayerRole>();
+  for (const [playerId, counts] of byPlayer) {
+    finalPlayerRole.set(playerId, pick(counts));
+  }
+  for (const [playerId, role] of deducedRole) {
+    if (!finalPlayerRole.has(playerId)) finalPlayerRole.set(playerId, role);
+  }
+
   const players = await prisma.player.findMany({
-    where: { id: { in: [...byPlayer.keys()] } },
+    where: { id: { in: [...finalPlayerRole.keys()] } },
     select: { id: true, primaryRole: true },
   });
   let updatedPlayers = 0;
   for (const p of players) {
-    const role = pick(byPlayer.get(p.id)!);
+    const role = finalPlayerRole.get(p.id)!;
     if (p.primaryRole === role) continue;
     await prisma.player.update({ where: { id: p.id }, data: { primaryRole: role } });
     updatedPlayers++;
@@ -100,12 +176,14 @@ export async function deriveRoles(prisma: PrismaClient): Promise<RolesSummary> {
   let noEvidence = 0;
   for (const m of memberships) {
     const splitId = m.teamEntry.division.edition.splitId;
-    const counts = byEntry.get(`${m.playerId}|${m.teamEntry.teamId}|${splitId}`);
-    if (!counts) {
+    const key = `${m.playerId}|${m.teamEntry.teamId}|${splitId}`;
+    const counts = byEntry.get(key);
+    // Evidencia directa; si no, la deducción "4 de 5" para ese equipo/split.
+    const role = counts ? pick(counts) : deducedEntry.get(key);
+    if (!role) {
       noEvidence++; // no jugó (o solo en vistas normales) → lo dejamos UNKNOWN
       continue;
     }
-    const role = pick(counts);
     if (m.role === role) continue;
     await prisma.rosterMembership.update({ where: { id: m.id }, data: { role } });
     updatedMemberships++;
@@ -129,5 +207,6 @@ export async function deriveRoles(prisma: PrismaClient): Promise<RolesSummary> {
     updatedPlayers,
     updatedMemberships,
     noEvidence,
+    deduced: deducedRole.size,
   };
 }
