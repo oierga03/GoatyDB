@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { Logo } from "@/components/Logo";
 import { TeamAvatar } from "@/components/TeamAvatar";
+import {
+  CircuitoTormentaLogo,
+  HextechSeriesBanner,
+} from "@/components/SourceLogos";
 import { TEAM, SOCIALS } from "@/lib/team";
 
 export const metadata: Metadata = {
@@ -141,15 +145,23 @@ export default async function QuienesSomosPage() {
 
       {/* Fuente de datos + tecnología */}
       <section className="grid gap-4 sm:grid-cols-2">
-        <div className="card p-5">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-accent)]">
-            Fuente de datos
-          </h2>
-          <p className="mt-2 text-lg font-semibold">Circuito Tormenta</p>
-          <p className="mt-1 text-sm text-[var(--color-muted)]">
-            Datos recopilados del Circuito Tormenta (Hextech Series), sin
-            inventar lo que no se puede comprobar.
-          </p>
+        <div className="card overflow-hidden">
+          <HextechSeriesBanner className="h-24" />
+          <div className="p-5">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-accent)]">
+              Fuente de datos
+            </h2>
+            <div className="mt-3">
+              <CircuitoTormentaLogo height={26} />
+            </div>
+            <p className="mt-3 text-sm text-[var(--color-muted)]">
+              Todos los resultados se cotejan contra la clasificación oficial del{" "}
+              <span className="text-[var(--color-text)]">Circuito Tormenta</span>{" "}
+              (Hextech Series). Las estadísticas de jugador salen de los
+              marcadores post‑partida. Si un dato no se puede comprobar, se dice
+              — no se inventa.
+            </p>
+          </div>
         </div>
         <div className="card p-5">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-accent)]">

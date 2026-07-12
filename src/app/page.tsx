@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Logo } from "@/components/Logo";
 import { TeamAvatar } from "@/components/TeamAvatar";
 import { TEAM, SOCIALS } from "@/lib/team";
+import { CircuitoTormentaLogo } from "@/components/SourceLogos";
 
 const CARDS = [
   {
@@ -98,6 +99,14 @@ export default async function HomePage() {
           >
             Ver equipos
           </Link>
+        </div>
+
+        {/* Fuente de los datos: resultados cotejados con el CT oficial. */}
+        <div className="mt-10 flex flex-col items-center gap-2">
+          <span className="text-[0.7rem] uppercase tracking-widest text-[var(--color-muted)]">
+            Resultados cotejados con
+          </span>
+          <CircuitoTormentaLogo height={24} className="opacity-80" />
         </div>
       </section>
 

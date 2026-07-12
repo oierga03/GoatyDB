@@ -3,6 +3,7 @@ import Link from "next/link";
 import { NavLink } from "@/components/NavLink";
 import { Logo } from "@/components/Logo";
 import { SocialLinks } from "@/components/SocialLinks";
+import { CircuitoTormentaLogo } from "@/components/SourceLogos";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -50,23 +51,40 @@ export default function RootLayout({
           </main>
 
           <footer className="border-t border-[var(--color-border)] mt-8">
-            <div className="mx-auto max-w-6xl px-4 py-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs text-[var(--color-muted)]">
-              <span>
-                Un proyecto de{" "}
-                <span className="font-semibold text-[var(--color-text)]">
-                  Goaty Esports
-                </span>{" "}
-                · Datos: Circuito Tormenta (Hextech)
-              </span>
-              <div className="flex items-center gap-4">
-                <SocialLinks />
-                <Link
-                  href="/acerca-de"
-                  className="hover:text-[var(--color-text)]"
-                >
-                  Quiénes somos →
-                </Link>
+            <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 text-xs text-[var(--color-muted)]">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <span>
+                    Un proyecto de{" "}
+                    <span className="font-semibold text-[var(--color-text)]">
+                      Goaty Esports
+                    </span>
+                  </span>
+                  <span aria-hidden>·</span>
+                  <span className="flex items-center gap-2">
+                    Datos oficiales de
+                    <CircuitoTormentaLogo height={16} className="opacity-75" />
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <SocialLinks />
+                  <Link
+                    href="/acerca-de"
+                    className="hover:text-[var(--color-text)]"
+                  >
+                    Quiénes somos →
+                  </Link>
+                </div>
               </div>
+
+              {/* Aviso: los logos son de sus dueños y GoatyDB no está afiliado. */}
+              <p className="max-w-3xl leading-relaxed opacity-70">
+                GoatyDB es un proyecto independiente de aficionados, sin relación
+                oficial con GGTech Entertainment ni Riot Games. «Circuito
+                Tormenta», «Hextech Series» y sus logotipos son marcas de sus
+                respectivos propietarios; se usan únicamente para identificar la
+                fuente de los datos.
+              </p>
             </div>
           </footer>
         </div>
