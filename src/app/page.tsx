@@ -84,9 +84,8 @@ export default async function HomePage() {
           Goaty<span className="text-gradient">DB</span>
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-base text-[var(--color-muted)] sm:text-lg">
-          Cada jugador, cada equipo y cada trofeo del amateur de Hextech, en un
-          solo sitio. Quién jugó, en qué equipo y división, cómo quedó y qué
-          ganó — con datos verificados.
+          La base de datos de la Hextech, por Goaty. Busca tu equipo, tus
+          jugadores y tus partidas, o mira los trofeos de cada semana.
         </p>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
