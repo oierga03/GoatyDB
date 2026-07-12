@@ -8,6 +8,7 @@ import { RoleTag } from "@/components/RoleTag";
 import { ResultBadge } from "@/components/ResultBadge";
 import { TeamLogo } from "@/components/TeamLogo";
 import { ReportDialog } from "@/components/ReportDialog";
+import { AwardThumb } from "@/components/AwardThumb";
 
 async function getPlayer(slug: string) {
   return prisma.player.findUnique({
@@ -500,31 +501,46 @@ export default async function PlayerProfilePage({
             {player.awards.map((r) => (
               <li
                 key={r.id}
-                className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-4"
+                className="flex gap-3 rounded-xl border border-amber-400/20 bg-amber-400/5 p-4"
               >
-                <div className="flex items-center gap-2">
-                  <span aria-hidden>🏆</span>
-                  <span className="font-semibold">
-                    {r.awardEdition.awardDefinition.name}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-[var(--color-muted)]">
-                  {r.awardEdition.title}
-                </p>
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[var(--color-muted)]">
-                  <span className="rounded bg-[var(--color-surface-2)] px-1.5 py-0.5 ring-1 ring-inset ring-[var(--color-border)]">
-                    {AWARD_SCOPE_LABELS[r.awardEdition.awardDefinition.scopeType]}
-                  </span>
-                  {r.awardEdition.split && <span>{r.awardEdition.split.name}</span>}
-                  {r.awardEdition.division && (
-                    <span>· {r.awardEdition.division.name}</span>
+                {/* Gráfico del premio (el del GOATCAST), pequeño. */}
+                {r.awardEdition.imageUrl && (
+                  <AwardThumb
+                    src={r.awardEdition.imageUrl}
+                    alt={r.awardEdition.title}
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span aria-hidden>🏆</span>
+                    <span className="font-semibold">
+                      {r.awardEdition.awardDefinition.name}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-[var(--color-muted)]">
+                    {r.awardEdition.title}
+                  </p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[var(--color-muted)]">
+                    <span className="rounded bg-[var(--color-surface-2)] px-1.5 py-0.5 ring-1 ring-inset ring-[var(--color-border)]">
+                      {
+                        AWARD_SCOPE_LABELS[
+                          r.awardEdition.awardDefinition.scopeType
+                        ]
+                      }
+                    </span>
+                    {r.awardEdition.split && (
+                      <span>{r.awardEdition.split.name}</span>
+                    )}
+                    {r.awardEdition.division && (
+                      <span>· {r.awardEdition.division.name}</span>
+                    )}
+                  </div>
+                  {r.citation && (
+                    <p className="mt-2 text-sm italic text-[var(--color-muted)]">
+                      “{r.citation}”
+                    </p>
                   )}
                 </div>
-                {r.citation && (
-                  <p className="mt-2 text-sm italic text-[var(--color-muted)]">
-                    “{r.citation}”
-                  </p>
-                )}
               </li>
             ))}
           </ul>

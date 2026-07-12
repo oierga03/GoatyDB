@@ -82,9 +82,6 @@ export default async function QuienesSomosPage() {
                 />
               </div>
               <div className="mt-3 text-lg font-semibold">{m.name}</div>
-              <div className="mt-0.5 text-xs uppercase tracking-wide text-[var(--color-muted)]">
-                {m.role}
-              </div>
             </div>
           ))}
         </div>

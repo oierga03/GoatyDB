@@ -218,9 +218,6 @@ export default async function HomePage() {
                   />
                 </div>
                 <div className="mt-2 text-sm font-semibold">{m.name}</div>
-                <div className="text-[0.7rem] uppercase tracking-wide text-[var(--color-muted)]">
-                  Cofundador
-                </div>
               </div>
             ))}
           </div>
