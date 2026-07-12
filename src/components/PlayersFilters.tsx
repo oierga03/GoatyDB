@@ -10,9 +10,11 @@ type Option = { value: string; label: string };
 export function PlayersFilters({
   teams,
   divisions,
+  splits,
 }: {
   teams: Option[];
   divisions: Option[];
+  splits: Option[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -37,7 +39,7 @@ export function PlayersFilters({
 
   return (
     <form
-      className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+      className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5"
       onSubmit={(e) => {
         e.preventDefault();
         pushParams({ q });
@@ -74,17 +76,17 @@ export function PlayersFilters({
 
       <div>
         <label className="mb-1 block text-xs text-[var(--color-muted)]">
-          Equipo
+          Split
         </label>
         <select
-          value={searchParams.get("team") ?? ""}
-          onChange={(e) => pushParams({ team: e.target.value })}
+          value={searchParams.get("split") ?? ""}
+          onChange={(e) => pushParams({ split: e.target.value })}
           className={inputClass}
         >
           <option value="">Todos</option>
-          {teams.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label}
+          {splits.map((s) => (
+            <option key={s.value} value={s.value}>
+              {s.label}
             </option>
           ))}
         </select>
@@ -108,7 +110,25 @@ export function PlayersFilters({
         </select>
       </div>
 
-      <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-4">
+      <div>
+        <label className="mb-1 block text-xs text-[var(--color-muted)]">
+          Equipo
+        </label>
+        <select
+          value={searchParams.get("team") ?? ""}
+          onChange={(e) => pushParams({ team: e.target.value })}
+          className={inputClass}
+        >
+          <option value="">Todos</option>
+          {teams.map((t) => (
+            <option key={t.value} value={t.value}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-5">
         <button
           type="submit"
           className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-black hover:opacity-90 transition-opacity disabled:opacity-50"

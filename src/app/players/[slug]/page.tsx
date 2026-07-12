@@ -45,8 +45,8 @@ function roundRank(m: { matchday: number | null; round: string }): number {
   return 500;
 }
 
-/// Partidas en las que ha jugado, de la más reciente a la más antigua.
-/// Una serie puede tener varios juegos: agrupamos por partida (no por juego).
+/// Enfrentamientos en los que ha jugado, del más reciente al más antiguo.
+/// Un enfrentamiento (serie) puede tener varias partidas: agrupamos por serie.
 async function getPlayerMatches(playerId: string) {
   const stats = await prisma.playerGameStat.findMany({
     where: { playerId },
@@ -97,7 +97,7 @@ async function getPlayerMatches(playerId: string) {
 
 /// Estadísticas agregadas, calculadas desde los marcadores importados.
 /// Ojo: el campeón solo aparece en las capturas de "vista avanzada", así que
-/// puede haber menos juegos con campeón conocido que juegos totales.
+/// puede haber menos partidas con campeón conocido que partidas totales.
 async function getPlayerStats(playerId: string) {
   const stats = await prisma.playerGameStat.findMany({
     where: { playerId },
@@ -395,13 +395,13 @@ export default async function PlayerProfilePage({
           <div className="flex items-baseline justify-between gap-2">
             <h2 className="text-lg font-semibold">Estadísticas</h2>
             <span className="text-xs text-[var(--color-muted)]">
-              Sobre {stats.games} {stats.games === 1 ? "juego" : "juegos"}
+              Sobre {stats.games} {stats.games === 1 ? "partida" : "partidas"}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatTile
-              label="Juegos"
+              label="Partidas"
               value={String(stats.games)}
               sub={`${stats.wins}V · ${stats.losses}D`}
             />
@@ -412,7 +412,7 @@ export default async function PlayerProfilePage({
               sub="(K+A) / D"
             />
             <StatTile
-              label="K / D / A por juego"
+              label="K / D / A por partida"
               value={`${stats.avgK.toFixed(1)} / ${stats.avgD.toFixed(1)} / ${stats.avgA.toFixed(1)}`}
             />
           </div>
@@ -437,7 +437,7 @@ export default async function PlayerProfilePage({
                         {c.name}
                       </span>
                       <span className="w-20 shrink-0 text-right text-xs tabular-nums text-[var(--color-muted)]">
-                        {c.games} {c.games === 1 ? "juego" : "juegos"}
+                        {c.games} {c.games === 1 ? "partida" : "partidas"}
                       </span>
                       <span
                         className="hidden h-1.5 w-24 shrink-0 overflow-hidden rounded-full sm:block"
@@ -464,7 +464,7 @@ export default async function PlayerProfilePage({
               </ul>
               {stats.champGames < stats.games && (
                 <p className="text-xs text-[var(--color-muted)]">
-                  Campeón conocido en {stats.champGames} de {stats.games} juegos
+                  Campeón conocido en {stats.champGames} de {stats.games} partidas
                   (solo las capturas en vista avanzada lo muestran).
                 </p>
               )}
@@ -473,14 +473,14 @@ export default async function PlayerProfilePage({
         </section>
       )}
 
-      {/* Partidas jugadas — clic para ver el detalle */}
+      {/* Enfrentamientos jugados — clic para ver el detalle */}
       {matches.length > 0 && (
         <section className="space-y-3">
           <div className="flex items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold">Partidas</h2>
+            <h2 className="text-lg font-semibold">Enfrentamientos</h2>
             <span className="text-xs text-[var(--color-muted)]">
               {matches.length}{" "}
-              {matches.length === 1 ? "partida" : "partidas"} · clic para ver el
+              {matches.length === 1 ? "enfrentamiento" : "enfrentamientos"} · clic para ver el
               detalle
             </span>
           </div>

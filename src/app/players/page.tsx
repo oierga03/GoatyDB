@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 type SearchParams = {
   q?: string;
   role?: string;
+  split?: string;
   team?: string;
   division?: string;
   page?: string;
@@ -45,6 +46,7 @@ export default async function PlayersPage({
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
   const role = parseRole(params.role);
+  const splitSlug = params.split ?? "";
   const teamSlug = params.team ?? "";
   const divisionName = params.division ?? "";
   const PAGE_SIZE = 48;
@@ -59,11 +61,20 @@ export default async function PlayersPage({
     rosterMemberships: {
       some: {
         rosterStatus: { notIn: NON_PLAYING },
-        ...(teamSlug || divisionName
+        ...(teamSlug || divisionName || splitSlug
           ? {
               teamEntry: {
                 ...(teamSlug ? { team: { slug: teamSlug } } : {}),
-                ...(divisionName ? { division: { name: divisionName } } : {}),
+                ...(divisionName || splitSlug
+                  ? {
+                      division: {
+                        ...(divisionName ? { name: divisionName } : {}),
+                        ...(splitSlug
+                          ? { edition: { split: { slug: splitSlug } } }
+                          : {}),
+                      },
+                    }
+                  : {}),
               },
             }
           : {}),
@@ -81,7 +92,7 @@ export default async function PlayersPage({
       : {}),
   };
 
-  const [total, players, teams, divisions] = await Promise.all([
+  const [total, players, teams, divisions, splits] = await Promise.all([
     prisma.player.count({ where }),
     prisma.player.findMany({
       where,
@@ -113,6 +124,10 @@ export default async function PlayersPage({
       select: { name: true },
       distinct: ["name"],
     }),
+    prisma.split.findMany({
+      orderBy: { sequenceNumber: "desc" },
+      select: { slug: true, name: true },
+    }),
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -120,6 +135,7 @@ export default async function PlayersPage({
     const sp = new URLSearchParams();
     if (q) sp.set("q", q);
     if (params.role) sp.set("role", params.role);
+    if (splitSlug) sp.set("split", splitSlug);
     if (teamSlug) sp.set("team", teamSlug);
     if (divisionName) sp.set("division", divisionName);
     if (p > 1) sp.set("page", String(p));
@@ -132,6 +148,7 @@ export default async function PlayersPage({
     label: t.shortName ? `${t.name} (${t.shortName})` : t.name,
   }));
   const divisionOptions = divisions.map((d) => ({ value: d.name, label: d.name }));
+  const splitOptions = splits.map((s) => ({ value: s.slug, label: s.name }));
 
   return (
     <div className="space-y-6">
@@ -144,7 +161,11 @@ export default async function PlayersPage({
       </header>
 
       <div className="card p-4">
-        <PlayersFilters teams={teamOptions} divisions={divisionOptions} />
+        <PlayersFilters
+          teams={teamOptions}
+          divisions={divisionOptions}
+          splits={splitOptions}
+        />
       </div>
 
       {players.length === 0 ? (
@@ -167,7 +188,10 @@ export default async function PlayersPage({
               memberships.find(
                 (m) =>
                   (!teamSlug || m.teamEntry.team.slug === teamSlug) &&
-                  (!divisionName || m.teamEntry.division.name === divisionName),
+                  (!divisionName ||
+                    m.teamEntry.division.name === divisionName) &&
+                  (!splitSlug ||
+                    m.teamEntry.division.edition.split.slug === splitSlug),
               ) ?? memberships[0];
             if (!shown) return null;
 

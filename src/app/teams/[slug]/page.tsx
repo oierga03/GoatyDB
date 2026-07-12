@@ -40,7 +40,7 @@ function roundRank(m: { matchday: number | null; round: string }): number {
   return 500;
 }
 
-/// Partidas del equipo, de la más reciente a la más antigua.
+/// Enfrentamientos del equipo, del más reciente al más antiguo.
 async function getMatches(teamId: string) {
   const matches = await prisma.match.findMany({
     where: { OR: [{ teamAId: teamId }, { teamBId: teamId }] },
@@ -325,10 +325,10 @@ export default async function TeamProfilePage({
         )}
       </section>
 
-      {/* Partidas — de la más reciente a la más antigua */}
+      {/* Enfrentamientos — del más reciente al más antiguo */}
       {matches.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold">Partidas</h2>
+          <h2 className="text-lg font-semibold">Enfrentamientos</h2>
           <ul className="card divide-y divide-[var(--color-border)] overflow-hidden">
             {matches.map((m) => (
               <MatchRow key={m.id} match={m} teamId={team.id} />

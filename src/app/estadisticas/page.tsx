@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "Campeones más jugados, líderes por KDA y reparto de partidas del split.",
 };
 
-const MIN_GAMES = 4; // mínimo para entrar en los rankings (evita el 1-juego-perfecto)
+const MIN_GAMES = 4; // mínimo para entrar en los rankings (evita la 1-partida-perfecta)
 
 /**
  * Barra de magnitud: una sola tinta (la pista es un paso más claro del mismo
@@ -250,7 +250,7 @@ export default async function EstadisticasPage({
       {ranked.length > 0 && (
         <Panel
           title="Líderes por KDA"
-          hint={`Mínimo ${MIN_GAMES} juegos`}
+          hint={`Mínimo ${MIN_GAMES} partidas`}
         >
           {ranked.map((r) => {
             const p = nameOf.get(r.playerId);
@@ -262,7 +262,7 @@ export default async function EstadisticasPage({
                 value={r.kda}
                 max={maxKda}
                 right={`${r.kda.toFixed(2)} · ${r.games}j`}
-                title={`${p?.displayName}: KDA ${r.kda.toFixed(2)} en ${r.games} juegos`}
+                title={`${p?.displayName}: KDA ${r.kda.toFixed(2)} en ${r.games} partidas`}
               />
             );
           })}
@@ -281,7 +281,7 @@ export default async function EstadisticasPage({
                 value={r.kills}
                 max={maxKills}
                 right={`${r.kills} · ${r.games}j`}
-                title={`${p?.displayName}: ${r.kills} asesinatos en ${r.games} juegos`}
+                title={`${p?.displayName}: ${r.kills} asesinatos en ${r.games} partidas`}
               />
             );
           })}
@@ -289,7 +289,7 @@ export default async function EstadisticasPage({
       )}
 
       {divisions.length > 0 && (
-        <Panel title="Partidas por división" hint="Series cargadas">
+        <Panel title="Enfrentamientos por división" hint="Series cargadas">
           {divisions.map((d) => (
             <Bar
               key={d.name}
@@ -297,7 +297,7 @@ export default async function EstadisticasPage({
               value={d._count.matches}
               max={maxDivMatches}
               right={`${d._count.matches}`}
-              title={`${d.name}: ${d._count.matches} partidas`}
+              title={`${d.name}: ${d._count.matches} enfrentamientos`}
             />
           ))}
         </Panel>
