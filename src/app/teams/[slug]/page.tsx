@@ -9,6 +9,7 @@ import { TeamLogo } from "@/components/TeamLogo";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { RoleIcon } from "@/components/RoleIcon";
 import { ResultBadge } from "@/components/ResultBadge";
+import { ReportDialog } from "@/components/ReportDialog";
 
 async function getTeam(slug: string) {
   return prisma.team.findUnique({
@@ -238,6 +239,13 @@ export default async function TeamProfilePage({
               )}
             </div>
           )}
+          <div className="mt-2">
+            <ReportDialog
+              subject={team.name}
+              defaultKind="TEAM_DATA"
+              label="¿Algún dato incorrecto? Repórtalo"
+            />
+          </div>
         </div>
         {latest && (
           <div className="flex flex-col items-end gap-1">
