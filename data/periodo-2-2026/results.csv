@@ -1,0 +1,243 @@
+division,round,matchday,team_a,team_b,score_a,score_b
+División 1,Jornada 1,1,Oxygen Gaming LOL,Nocturne Gale LOL,1,0
+División 1,Jornada 1,1,Guinea Pink,Valkiria's Vikings,0,1
+División 1,Jornada 1,1,EK Esports,Kawaii Kiwis 2026,0,1
+División 1,Jornada 1,1,Fallen Ember,Movistar KOI Karps,0,1
+División 1,Jornada 2,2,Valkiria's Vikings,Oxygen Gaming LOL,0,1
+División 1,Jornada 2,2,Movistar KOI Karps,Kawaii Kiwis 2026,2,1
+División 1,Jornada 2,2,Guinea Pink,Nocturne Gale LOL,2,0
+División 1,Jornada 2,2,EK Esports,Fallen Ember,2,1
+División 1,Jornada 3,3,Guinea Pink,Kawaii Kiwis 2026,0,2
+División 1,Jornada 3,3,Valkiria's Vikings,EK Esports,2,1
+División 1,Jornada 3,3,Nocturne Gale LOL,Fallen Ember,0,2
+División 2,Jornada 1,1,VVV,VentuCorp eSports LOL,1,0
+División 2,Jornada 1,1,Phoenix eSports,Guadalquivir Gaming,0,1
+División 2,Jornada 1,1,DPT,BYAKKO'S BREEDERS,0,1
+División 2,Jornada 1,1,Valkiria's Thunder,MADE IN HEAVEN,1,0
+División 2,Jornada 2,2,Valkiria's Thunder,BYAKKO'S BREEDERS,0,2
+División 2,Jornada 2,2,Guadalquivir Gaming,VVV,0,2
+División 2,Jornada 2,2,Phoenix eSports,DPT,0,2
+División 2,Jornada 2,2,VentuCorp eSports LOL,MADE IN HEAVEN,0,2
+División 2,Jornada 3,3,DPT,MADE IN HEAVEN,0,2
+División 2,Jornada 3,3,Valkiria's Thunder,Guadalquivir Gaming,0,2
+División 3,Jornada 1,1,AzE,VAY eSports LoL,0,1
+División 3,Jornada 1,1,Phoenix Ascend,CSN Rinato,1,0
+División 3,Jornada 1,1,Madrid in Game,Cyclon Gaming,1,0
+División 3,Jornada 1,1,Team Meet Valhalla,AJA,1,0
+División 3,Jornada 2,2,Phoenix Ascend,Team Meet Valhalla,2,0
+División 3,Jornada 2,2,VAY eSports LoL,Madrid in Game,0,2
+División 3,Jornada 2,2,AJA,CSN Rinato,2,0
+División 3,Jornada 2,2,AzE,Cyclon Gaming,2,0
+División 3,Jornada 3,3,AJA,AzE,0,2
+División 3,Jornada 3,3,VAY eSports LoL,Team Meet Valhalla,1,2
+División 3,Jornada 1,1,Tan’i eSports LoL,SusLeague,1,0
+División 3,Jornada 1,1,DimoniX,UB Ascensus,0,1
+División 3,Jornada 1,1,Valkiria's Valhalla,Koryu Budo Kaiju,1,0
+División 3,Jornada 1,1,NFAMY,Azure Dragons,0,1
+División 3,Jornada 2,2,Valkiria's Valhalla,Tan’i eSports LoL,0,2
+División 3,Jornada 2,2,Azure Dragons,UB Ascensus,0,2
+División 3,Jornada 2,2,SusLeague,Koryu Budo Kaiju,2,0
+División 3,Jornada 2,2,DimoniX,NFAMY,2,0
+División 3,Jornada 3,3,DimoniX,Azure Dragons,0,2
+División 3,Jornada 3,3,SusLeague,Valkiria's Valhalla,2,0
+División 4,Jornada 1,1,Zenturions,Skyfox Onslaught,1,0
+División 4,Jornada 1,1,404 Legion,ORIGYN,1,0
+División 4,Jornada 1,1,Big Yahu Esports,Diverbot Papea,1,0
+División 4,Jornada 1,1,ROSWILD Blue,NX5 eSports Black,1,0
+División 4,Jornada 2,2,404 Legion,Zenturions,1,2
+División 4,Jornada 2,2,Big Yahu Esports,ROSWILD Blue,2,0
+División 4,Jornada 2,2,Diverbot Papea,ORIGYN,2,0
+División 4,Jornada 2,2,NX5 eSports Black,Skyfox Onslaught,2,1
+División 4,Jornada 3,3,404 Legion,ROSWILD Blue,2,0
+División 4,Jornada 3,3,Diverbot Papea,NX5 eSports Black,2,0
+División 4,Jornada 1,1,UBAM Comunitat,Rift Dragons,1,0
+División 4,Jornada 1,1,Uniovi eSports,404 Legacy,0,1
+División 4,Jornada 1,1,Locked Esports,Skyfox Inferno,1,0
+División 4,Jornada 1,1,TAXERS,ZRYN esports,0,1
+División 4,Jornada 2,2,UBAM Comunitat,404 Legacy,0,2
+División 4,Jornada 2,2,Locked Esports,ZRYN esports,2,0
+División 4,Jornada 2,2,TAXERS,Skyfox Inferno,2,0
+División 4,Jornada 2,2,Rift Dragons,Uniovi eSports,2,0
+División 4,Jornada 3,3,TAXERS,UBAM Comunitat,0,2
+División 4,Jornada 3,3,Rift Dragons,ZRYN esports,1,2
+División 4,Jornada 1,1,DimoniX ACADEMY,ROSWILD Eclipse,1,0
+División 4,Jornada 1,1,Hellfire,Koryu Budo Saru,0,1
+División 4,Jornada 1,1,CSN Alba,Goaty Esports,0,1
+División 4,Jornada 1,1,Equipo Queixo,GenYi,1,0
+División 4,Jornada 2,2,Koryu Budo Saru,Equipo Queixo,2,1
+División 4,Jornada 2,2,DimoniX ACADEMY,Goaty Esports,1,2
+División 4,Jornada 2,2,Hellfire,GenYi,0,2
+División 4,Jornada 2,2,CSN Alba,ROSWILD Eclipse,1,2
+División 4,Jornada 3,3,GenYi,DimoniX ACADEMY,0,2
+División 4,Jornada 3,3,ROSWILD Eclipse,Equipo Queixo,1,2
+División 4,Jornada 1,1,Trapezoides,Rift Dragons Academy,1,0
+División 4,Jornada 1,1,VentuCorp Gods,IDK,1,0
+División 4,Jornada 1,1,Koryu Budo Arashi,404 Academy,1,0
+División 4,Jornada 1,1,Dragons Of Blossom Hikari,404 Black,0,1
+División 4,Jornada 2,2,VentuCorp Gods,404 Black,0,3
+División 4,Jornada 2,2,Trapezoides,Koryu Budo Arashi,0,2
+División 4,Jornada 2,2,404 Academy,Rift Dragons Academy,0,2
+División 4,Jornada 2,2,IDK,Dragons Of Blossom Hikari,2,0
+División 4,Jornada 3,3,IDK,Trapezoides,2,1
+División 4,Jornada 3,3,VentuCorp Gods,Rift Dragons Academy,0,2
+División 5,Jornada 1,1,Kebab Azerbaiyan,NX5 eSports White,1,0
+División 5,Jornada 1,1,HN Mellonant,Loco Wasa Truncapingas,1,0
+División 5,Jornada 1,1,Unknown Family Gaming,ONI eSports,1,0
+División 5,Jornada 1,1,DYNAMO THUNDER LIONS,Los que te cuento,0,1
+División 5,Jornada 2,2,Los que te cuento,Kebab Azerbaiyan,2,0
+División 5,Jornada 2,2,Unknown Family Gaming,HN Mellonant,2,0
+División 5,Jornada 2,2,DYNAMO THUNDER LIONS,NX5 eSports White,1,2
+División 5,Jornada 2,2,Loco Wasa Truncapingas,ONI eSports,0,2
+División 5,Jornada 3,3,HN Mellonant,Kebab Azerbaiyan,2,1
+División 5,Jornada 3,3,ONI eSports,NX5 eSports White,0,2
+División 5,Jornada 1,1,Rising Birds Excelsior,Velaris Esports,0,1
+División 5,Jornada 1,1,404 Nexus,Team Frankfurt BBQ,1,0
+División 5,Jornada 1,1,Shadow Warriors,Cigarro de Doran,0,1
+División 5,Jornada 1,1,Nuberu Galerna,Factor Kubata,1,0
+División 5,Jornada 2,2,Cigarro de Doran,Nuberu Galerna,2,0
+División 5,Jornada 2,2,404 Nexus,Velaris Esports,1,2
+División 5,Jornada 2,2,Rising Birds Excelsior,Team Frankfurt BBQ,2,0
+División 5,Jornada 2,2,Shadow Warriors,Factor Kubata,2,0
+División 5,Jornada 3,3,Rising Birds Excelsior,Nuberu Galerna,2,0
+División 5,Jornada 3,3,Shadow Warriors,404 Nexus,2,0
+División 5,Jornada 1,1,TULLIDOS,404 Rising,1,0
+División 5,Jornada 1,1,Goath,CSN Vuoto,0,1
+División 5,Jornada 1,1,Nuberu eSports,Scorpions,1,0
+División 5,Jornada 1,1,HellFire Ascended,Cepelio Gaming,1,0
+División 5,Jornada 2,2,HellFire Ascended,TULLIDOS,2,1
+División 5,Jornada 2,2,CSN Vuoto,Nuberu eSports,0,2
+División 5,Jornada 2,2,Scorpions,Cepelio Gaming,0,2
+División 5,Jornada 2,2,Goath,404 Rising,0,2
+División 5,Jornada 3,3,Cepelio Gaming,TULLIDOS,0,2
+División 5,Jornada 3,3,CSN Vuoto,404 Rising,2,1
+División 5,Jornada 1,1,PANTUMAKA GANG,Peek A Boo Esports,1,0
+División 5,Jornada 1,1,UBU Frozen Quills LOL,Win En Despachos,1,0
+División 5,Jornada 1,1,WASSONESS,lol&more,0,1
+División 5,Jornada 1,1,Gravelinas,CSN Rovina,0,1
+División 5,Jornada 2,2,CSN Rovina,lol&more,2,1
+División 5,Jornada 2,2,UBU Frozen Quills LOL,PANTUMAKA GANG,1,2
+División 5,Jornada 2,2,WASSONESS,Win En Despachos,2,0
+División 5,Jornada 2,2,Peek A Boo Esports,Gravelinas,2,0
+División 5,Jornada 3,3,UBU Frozen Quills LOL,lol&more,2,0
+División 5,Jornada 3,3,Peek A Boo Esports,WASSONESS,2,0
+División 6,Jornada 1,1,TRIGGER,Team Frankfurt,0,1
+División 6,Jornada 1,1,Jeffry Tempstein,Frankfurts,1,0
+División 6,Jornada 1,1,Shadow Uniovi eSports,VyronX,1,0
+División 6,Jornada 1,1,Flex Wannabes,SUSTRAI,0,1
+División 6,Jornada 2,2,Team Frankfurt,Shadow Uniovi eSports,2,1
+División 6,Jornada 2,2,Jeffry Tempstein,SUSTRAI,0,2
+División 6,Jornada 2,2,TRIGGER,VyronX,0,2
+División 6,Jornada 2,2,Frankfurts,Flex Wannabes,2,0
+División 6,Jornada 3,3,Jeffry Tempstein,VyronX,0,2
+División 6,Jornada 3,3,Shadow Uniovi eSports,Frankfurts,2,1
+División 6,Jornada 1,1,Siqui Army,Jeroni Busquets GP,1,0
+División 6,Jornada 1,1,Thirty-something Reflexes,Noche Fuerte,0,1
+División 6,Jornada 1,1,Voidreavers,Isidro Gamos Alcura,1,0
+División 6,Jornada 1,1,TEAM GAJ,LUNARIS GAMING,0,1
+División 6,Jornada 2,2,LUNARIS GAMING,Siqui Army,0,2
+División 6,Jornada 2,2,Voidreavers,Noche Fuerte,2,0
+División 6,Jornada 2,2,Thirty-something Reflexes,TEAM GAJ,0,2
+División 6,Jornada 2,2,Jeroni Busquets GP,Isidro Gamos Alcura,0,2
+División 6,Jornada 3,3,LUNARIS GAMING,Isidro Gamos Alcura,2,1
+División 6,Jornada 3,3,Noche Fuerte,TEAM GAJ,2,0
+División 6,Jornada 1,1,Ataraxia IAM,GUEBO GAMING,0,1
+División 6,Jornada 1,1,Voidborn Elite,Erytheia,0,1
+División 6,Jornada 1,1,TOPSMURF,PROJECT IAM,1,0
+División 6,Jornada 1,1,Shadow Warriors Dojo,Dragons Of Blossom Illume,0,1
+División 6,Jornada 2,2,Dragons Of Blossom Illume,Erytheia,1,2
+División 6,Jornada 2,2,GUEBO GAMING,TOPSMURF,0,2
+División 6,Jornada 2,2,Shadow Warriors Dojo,Voidborn Elite,0,2
+División 6,Jornada 2,2,Ataraxia IAM,PROJECT IAM,0,2
+División 6,Jornada 3,3,GUEBO GAMING,PROJECT IAM,0,2
+División 6,Jornada 3,3,Voidborn Elite,Dragons Of Blossom Illume,2,1
+División 6,Jornada 1,1,Fenix Club,Calvos Tóxicos Supremacía,0,1
+División 6,Jornada 1,1,Thunder Ninjas,Supernova Crypt,0,1
+División 6,Jornada 1,1,PTS,L.A. Leakers,0,1
+División 6,Jornada 1,1,HARAM,AMIGAS SEBAS,0,1
+División 6,Jornada 2,2,AMIGAS SEBAS,Calvos Tóxicos Supremacía,2,0
+División 6,Jornada 2,2,L.A. Leakers,Supernova Crypt,2,0
+División 6,Jornada 2,2,Fenix Club,HARAM,0,2
+División 6,Jornada 2,2,Thunder Ninjas,PTS,0,2
+División 6,Jornada 3,3,HARAM,Calvos Tóxicos Supremacía,2,1
+División 6,Jornada 3,3,PTS,Supernova Crypt,1,2
+División 7,Jornada 1,1,Arbusto Esports,Voli Vianos,1,0
+División 7,Jornada 1,1,Wybox Studios,Dieggs,1,0
+División 7,Jornada 1,1,Monkey G,FAKTOR K,1,0
+División 7,Jornada 2,2,Lekunberri Gaming,Arbusto Esports,1,2
+División 7,Jornada 2,2,Monkey G,Wybox Studios,2,0
+División 7,Jornada 2,2,Dieggs,FAKTOR K,2,0
+División 7,Jornada 3,3,Lekunberri Gaming,Wybox Studios,2,0
+División 7,Jornada 3,3,Voli Vianos,Dieggs,2,0
+División 7,Jornada 1,1,GP Overtime,HellFire Academy🦇,0,1
+División 7,Jornada 1,1,Debonairs,FAST 15 Esports,1,0
+División 7,Jornada 1,1,Totoxicas FC,HARAM,1,0
+División 7,Jornada 2,2,Gaditos Esports,Debonairs,0,2
+División 7,Jornada 2,2,HellFire Academy🦇,Totoxicas FC,2,0
+División 7,Jornada 2,2,GP Overtime,FAST 15 Esports,1,2
+División 7,Jornada 3,3,Gaditos Esports,Totoxicas FC,2,0
+División 7,Jornada 3,3,GP Overtime,FAST 15 Esports,1,2
+División 7,Jornada 1,1,Low Elo Trash,La 33,1,0
+División 7,Jornada 1,1,404 Reapers,Aceituna Gaming,1,0
+División 7,Jornada 1,1,Girly Combo,Periquitos Gaming,0,1
+División 7,Jornada 2,2,404 Reapers,Periquitos Gaming,2,0
+División 7,Jornada 2,2,Low Elo Trash,Girly Combo,0,2
+División 7,Jornada 2,2,Aceituna Gaming,La 33,0,2
+División 7,Jornada 3,3,Girly Combo,La 33,2,0
+División 7,Jornada 3,3,Low Elo Trash,Periquitos Gaming,2,1
+División 1,Semifinal,,Oxygen Gaming LOL,Kawaii Kiwis 2026,2,1
+División 1,Semifinal,,Movistar KOI Karps,Valkiria's Vikings,1,2
+División 1,Final,,Oxygen Gaming LOL,Valkiria's Vikings,2,0
+División 2,Semifinal,,VVV,MADE IN HEAVEN,2,0
+División 2,Semifinal,,BYAKKO'S BREEDERS,Guadalquivir Gaming,2,1
+División 2,Final,,VVV,BYAKKO'S BREEDERS,2,1
+División 3,Semifinal Grupo A,,AzE,Phoenix Ascend,2,0
+División 3,Semifinal Grupo A,,Madrid in Game,Team Meet Valhalla,2,0
+División 3,Final Grupo A,,AzE,Madrid in Game,2,0
+División 3,Semifinal Grupo B,,Tan’i eSports LoL,Azure Dragons,2,0
+División 3,Semifinal Grupo B,,UB Ascensus,SusLeague,0,2
+División 3,Final Grupo B,,Tan’i eSports LoL,SusLeague,2,0
+División 4,Semifinal Grupo A,,Zenturions,Diverbot Papea,2,0
+División 4,Semifinal Grupo A,,Big Yahu Esports,404 Legion,2,0
+División 4,Final Grupo A,,Zenturions,Big Yahu Esports,1,2
+División 4,Semifinal Grupo B,,Locked Esports,UBAM Comunitat,2,1
+División 4,Semifinal Grupo B,,404 Legacy,ZRYN esports,0,2
+División 4,Final Grupo B,,Locked Esports,ZRYN esports,2,0
+División 4,Semifinal Grupo C,,Koryu Budo Saru,DimoniX ACADEMY,0,2
+División 4,Semifinal Grupo C,,Goaty Esports,Equipo Queixo,2,0
+División 4,Final Grupo C,,DimoniX ACADEMY,Goaty Esports,1,2
+División 4,Semifinal Grupo D,,Koryu Budo Arashi,Rift Dragons Academy,2,0
+División 4,Semifinal Grupo D,,404 Black,IDK,2,0
+División 4,Final Grupo D,,Koryu Budo Arashi,404 Black,0,2
+División 5,Semifinal Grupo A,,Los que te cuento,HN Mellonant,2,1
+División 5,Semifinal Grupo A,,Unknown Family Gaming,NX5 eSports White,0,2
+División 5,Final Grupo A,,Los que te cuento,NX5 eSports White,0,2
+División 5,Semifinal Grupo B,,Velaris Esports,Shadow Warriors,2,0
+División 5,Semifinal Grupo B,,Rising Birds Excelsior,Cigarro de Doran,2,0
+División 5,Final Grupo B,,Velaris Esports,Rising Birds Excelsior,2,0
+División 5,Semifinal Grupo C,,HellFire Ascended,CSN Vuoto,2,0
+División 5,Semifinal Grupo C,,Nuberu eSports,TULLIDOS,2,0
+División 5,Final Grupo C,,HellFire Ascended,Nuberu eSports,2,0
+División 5,Semifinal Grupo D,,CSN Rovina,UBU Frozen Quills LOL,2,0
+División 5,Semifinal Grupo D,,PANTUMAKA GANG,Peek A Boo Esports,2,1
+División 5,Final Grupo D,,CSN Rovina,PANTUMAKA GANG,0,2
+División 6,Semifinal Grupo B,,Team Frankfurt,VyronX,1,2
+División 6,Semifinal Grupo B,,SUSTRAI,Shadow Uniovi eSports,1,2
+División 6,Final Grupo B,,VyronX,Shadow Uniovi eSports,2,0
+División 6,Semifinal Grupo C,,Voidreavers,LUNARIS GAMING,2,0
+División 6,Semifinal Grupo C,,Siqui Army,Noche Fuerte,1,2
+División 6,Final Grupo C,,Voidreavers,Noche Fuerte,2,0
+División 6,Semifinal Grupo D,,TOPSMURF,Voidborn Elite,2,0
+División 6,Semifinal Grupo D,,Erytheia,PROJECT IAM,2,0
+División 6,Final Grupo D,,TOPSMURF,Erytheia,0,2
+División 6,Semifinal Grupo A,,AMIGAS SEBAS,Supernova Crypt,2,0
+División 6,Semifinal Grupo A,,L.A. Leakers,HARAM,2,0
+División 6,Final Grupo A,,AMIGAS SEBAS,L.A. Leakers,2,1
+División 7,Semifinal Grupo A,,Arbusto Esports,Voli Vianos,2,0
+División 7,Semifinal Grupo A,,Monkey G,Lekunberri Gaming,2,0
+División 7,Final Grupo A,,Arbusto Esports,Monkey G,0,2
+División 7,Semifinal Grupo C,,Low Elo Trash,404 Reapers,2,0
+División 7,Semifinal Grupo C,,Girly Combo,Periquitos Gaming,2,0
+División 7,Final Grupo C,,Low Elo Trash,Girly Combo,2,1
+División 7,Semifinal Grupo B,,Debonairs,FAST 15 Esports,1,2
+División 7,Semifinal Grupo B,,Gaditos Esports,HellFire Academy🦇,2,0
+División 7,Final Grupo B,,FAST 15 Esports,Gaditos Esports,2,1

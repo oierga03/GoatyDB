@@ -307,6 +307,19 @@ type SplitConfig = {
   divisions: { name: string; level: number }[];
 };
 
+/// Busca un equipo por slug, siglas o nombre.
+async function resolveTeamByRef(ref: string) {
+  return prisma.team.findFirst({
+    where: {
+      OR: [
+        { slug: slugify(ref) },
+        { shortName: { equals: ref, mode: "insensitive" } },
+        { name: { equals: ref, mode: "insensitive" } },
+      ],
+    },
+  });
+}
+
 async function wipe() {
   // OJO: --fresh vacía TODA la base (todos los splits). Úsalo solo para un
   // reinicio completo, no para añadir un split nuevo (para eso usa el merge).
@@ -722,6 +735,67 @@ async function main() {
     } catch (e) {
       throw new Error(`awards.csv línea ${line}: ${(e as Error).message}`);
     }
+  }
+
+  // --- Resultados oficiales -------------------------------------------------
+  // results.csv: una fila por ENFRENTAMIENTO, con el resultado oficial del CT
+  // (sin estadísticas de jugador). Sirve para tener TODOS los partidos, incluso
+  // los que no tienen captura. Los que sí la tienen se enriquecen luego con
+  // matches.csv, que comparte la misma clave natural y hace upsert encima.
+  const resultRows = ONLY_AWARDS ? [] : readCsv("results.csv");
+  let resultsOk = 0;
+  for (const [index, row] of resultRows.entries()) {
+    const line = index + 2;
+    try {
+      const divName = optStr(row.division);
+      const divisionId = divName ? divisionByName.get(norm(divName)) : null;
+      if (!divisionId) throw new Error(`División "${divName}" no está en split.json`);
+      const round = optStr(row.round);
+      if (!round) throw new Error("Falta round");
+
+      const teamARef = optStr(row.team_a);
+      const teamBRef = optStr(row.team_b);
+      if (!teamARef || !teamBRef) throw new Error("Faltan team_a/team_b");
+
+      const teamA = await resolveTeamByRef(teamARef);
+      const teamB = await resolveTeamByRef(teamBRef);
+      if (!teamA) throw new Error(`Equipo A "${teamARef}" no encontrado`);
+      if (!teamB) throw new Error(`Equipo B "${teamBRef}" no encontrado`);
+
+      const scoreA = optInt(row.score_a) ?? 0;
+      const scoreB = optInt(row.score_b) ?? 0;
+      const winnerSide = scoreA === scoreB ? null : scoreA > scoreB ? "A" : "B";
+
+      await prisma.match.upsert({
+        where: {
+          splitId_divisionId_round_teamAId_teamBId: {
+            splitId: split.id,
+            divisionId,
+            round,
+            teamAId: teamA.id,
+            teamBId: teamB.id,
+          },
+        },
+        create: {
+          splitId: split.id,
+          divisionId,
+          round,
+          matchday: optInt(row.matchday),
+          teamAId: teamA.id,
+          teamBId: teamB.id,
+          scoreA,
+          scoreB,
+          winnerSide,
+        },
+        update: { scoreA, scoreB, winnerSide, matchday: optInt(row.matchday) },
+      });
+      resultsOk++;
+    } catch (e) {
+      throw new Error(`results.csv línea ${line}: ${(e as Error).message}`);
+    }
+  }
+  if (resultsOk > 0) {
+    console.log(`📋  ${resultsOk} resultados oficiales cargados desde results.csv`);
   }
 
   // --- Partidas -----------------------------------------------------------
