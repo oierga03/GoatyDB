@@ -224,6 +224,15 @@ export default async function PlayersPage({
                     {p.displayName}
                   </span>
 
+                  {effectiveRole !== "UNKNOWN" && (
+                    <span className="hidden shrink-0 items-center gap-1.5 text-xs text-[var(--color-muted)] sm:flex">
+                      <span className="text-[var(--color-accent)]">
+                        <RoleIcon role={effectiveRole} size={16} />
+                      </span>
+                      <span className="w-16">{roleLabel(effectiveRole)}</span>
+                    </span>
+                  )}
+
                   {/* Periodos en los que ha jugado */}
                   <span className="hidden shrink-0 items-center gap-1 sm:flex">
                     {periods.map((n) => (
@@ -236,15 +245,6 @@ export default async function PlayersPage({
                       </span>
                     ))}
                   </span>
-
-                  {effectiveRole !== "UNKNOWN" && (
-                    <span className="hidden shrink-0 items-center gap-1.5 text-xs text-[var(--color-muted)] sm:flex">
-                      <span className="text-[var(--color-accent)]">
-                        <RoleIcon role={effectiveRole} size={16} />
-                      </span>
-                      <span className="w-16">{roleLabel(effectiveRole)}</span>
-                    </span>
-                  )}
                   <span className="w-20 shrink-0 text-right text-xs text-[var(--color-muted)]">
                     {shown.teamEntry.division.name}
                   </span>
