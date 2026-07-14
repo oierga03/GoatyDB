@@ -199,7 +199,17 @@ con Playwright y leer `page.inner_text("body")`.
 
 ### Periodo 3 2026 — EN CURSO
 - **5 divisiones** (ojo: no 7), **93 equipos**, **786 personas**.
-- **0 partidas todavía.** La jornada 1 se jugó el domingo 12/07/2026.
+- **Jornada 1 cargada** (se jugó el domingo 12/07/2026): **42 resultados oficiales**
+  (`results.csv`) + **35 partidas con stats de jugador** (`matches.csv`, 350
+  registros). Cobertura de campeón/posición ~66% — mucho mejor que el P2 porque
+  estas capturas venían más veces en vista con nombres.
+- **Cotejado**: los 35 partidos con stats tienen ganador coherente con el
+  resultado oficial (0 discrepancias). 4 enfrentamientos sin stats (3 walkover +
+  1 sin captura); están cargados como resultado-only.
+- **Low Elo Trash vs ROSES Red** NO se cargó: hay captura de partida jugada pero
+  el Excel oficial la marca EN PROGRESO. No se afirma un resultado sin confirmar.
+- Champion nuevo **"Locke"** (aparece en 2026, posterior al cutoff): se transcribe
+  tal cual desde las capturas del cliente.
 
 ### Cobertura conocida (y asumida)
 | | |
