@@ -150,6 +150,7 @@ model Player {
   awards            AwardRecipient[]
   gameStats         PlayerGameStat[]
   reports           Report[]
+  freeAgentAds      FreeAgent[]
 
   @@index([primaryRole])
   @@index([needsReview])
@@ -523,6 +524,7 @@ enum ReportKind {
   PLAYER_ROLE // rol/posición incorrecta
   MATCH_DATA // resultado o marcador incorrecto
   TEAM_DATA // datos de equipo/roster incorrectos
+  FREE_AGENT // anuncio del tablón: suplantación, spam o contenido inapropiado
   OTHER
 }
 
@@ -540,13 +542,93 @@ model Report {
   subject   String? // A qué se refiere (nombre libre) por si no hay relación directa.
   message   String // Descripción de la corrección.
   contact   String? // Contacto opcional de quien reporta (Discord/email).
-  playerId  String?
-  matchId   String?
-  createdAt DateTime     @default(now())
+  playerId    String?
+  matchId     String?
+  freeAgentId String?
+  createdAt   DateTime     @default(now())
 
-  player Player? @relation(fields: [playerId], references: [id], onDelete: SetNull)
-  match  Match?  @relation(fields: [matchId], references: [id], onDelete: SetNull)
+  player    Player?    @relation(fields: [playerId], references: [id], onDelete: SetNull)
+  match     Match?     @relation(fields: [matchId], references: [id], onDelete: SetNull)
+  freeAgent FreeAgent? @relation(fields: [freeAgentId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([playerId])
+}
+
+// ---------------------------------------------------------------------------
+// Tablón de jugadores que buscan equipo
+// ---------------------------------------------------------------------------
+
+/// Rango de la SoloQ. Autodeclarado: no lo verificamos, solo lo mostramos
+/// junto al OP.GG para que cualquiera pueda comprobarlo.
+enum EloTier {
+  HIERRO
+  BRONCE
+  PLATA
+  ORO
+  PLATINO
+  ESMERALDA
+  DIAMANTE
+  MAESTRO
+  GRANMAESTRO
+  RETADOR
+}
+
+/// Tramo de edad. A propósito NO guardamos la edad exacta: el circuito es
+/// amateur y hay menores, y publicar edad exacta + Discord en abierto es un
+/// riesgo innecesario. A un equipo le vale con el tramo.
+enum AgeBracket {
+  EDAD_16_17
+  EDAD_18_21
+  EDAD_22_MAS
+}
+
+enum FreeAgentStatus {
+  PUBLISHED // Visible en el tablón.
+  FILLED // Ya encontró equipo (lo marca el propio jugador).
+  HIDDEN // Retirado por moderación tras un reporte.
+}
+
+/// Un anuncio de "busco equipo".
+///
+/// IMPORTANTE: esto NO es dato verificado y por eso vive en su propia tabla,
+/// separado de `Player`. Todo lo de aquí lo escribe el propio jugador sobre sí
+/// mismo. No debe mezclarse nunca con las estadísticas cotejadas.
+model FreeAgent {
+  id     String          @id @default(uuid())
+  status FreeAgentStatus @default(PUBLISHED)
+
+  lolNick       String // Nick con el que juega.
+  discord       String // Cómo contactarle. Es el punto del anuncio.
+  opggUrl       String? // Lo que hace comprobable el elo que declara.
+  role          PlayerRole // Rol principal.
+  secondaryRole PlayerRole? // Rol secundario, si es polivalente.
+  currentElo    EloTier?
+  peakElo       EloTier?
+  ageBracket    AgeBracket
+  availability  String // Cuándo puede jugar. Texto libre y corto.
+  about         String? // Nota breve para venderse.
+
+  /// Si el nick coincide con alguien ya en la base de datos, enlazamos su
+  /// ficha: es la prueba de rendimiento que ningún elo autodeclarado da.
+  playerId String?
+  player   Player? @relation(fields: [playerId], references: [id], onDelete: SetNull)
+
+  /// Enlace secreto que se le da al jugador para renovar o borrar su anuncio
+  /// sin necesidad de cuentas ni contraseñas.
+  manageToken String @unique @default(uuid())
+
+  /// Hash de la IP. Solo para limitar el spam; nunca se muestra.
+  ipHash String?
+
+  /// Los anuncios caducan solos: un tablón lleno de gente que ya tiene equipo
+  /// no sirve para nada. Se renueva con un clic desde el enlace de gestión.
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reports Report[]
+
+  @@index([status, expiresAt])
+  @@index([role])
 }

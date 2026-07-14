@@ -2,13 +2,20 @@
 
 import { useEffect, useState } from "react";
 
-type Kind = "PLAYER_IDENTITY" | "PLAYER_ROLE" | "MATCH_DATA" | "TEAM_DATA" | "OTHER";
+type Kind =
+  | "PLAYER_IDENTITY"
+  | "PLAYER_ROLE"
+  | "MATCH_DATA"
+  | "TEAM_DATA"
+  | "FREE_AGENT"
+  | "OTHER";
 
 const KIND_OPTIONS: { value: Kind; label: string }[] = [
   { value: "PLAYER_IDENTITY", label: "Este jugador es en realidad otra persona / cuenta duplicada" },
   { value: "PLAYER_ROLE", label: "El rol/posición está mal" },
   { value: "MATCH_DATA", label: "El resultado o el marcador está mal" },
   { value: "TEAM_DATA", label: "Datos del equipo o roster incorrectos" },
+  { value: "FREE_AGENT", label: "Anuncio del tablón: suplantación, spam o contenido ofensivo" },
   { value: "OTHER", label: "Otra cosa" },
 ];
 
@@ -19,12 +26,14 @@ const KIND_OPTIONS: { value: Kind; label: string }[] = [
 export function ReportDialog({
   playerId,
   matchId,
+  freeAgentId,
   subject,
   defaultKind = "OTHER",
   label = "Reportar dato incorrecto",
 }: {
   playerId?: string;
   matchId?: string;
+  freeAgentId?: string;
   subject?: string;
   defaultKind?: Kind;
   label?: string;
@@ -52,7 +61,15 @@ export function ReportDialog({
       const res = await fetch("/api/reports", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind, message, contact, subject, playerId, matchId }),
+        body: JSON.stringify({
+          kind,
+          message,
+          contact,
+          subject,
+          playerId,
+          matchId,
+          freeAgentId,
+        }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));

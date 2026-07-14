@@ -36,9 +36,13 @@ export async function POST(req: Request) {
   // Validamos que las referencias existan (si se pasan) para no romper el FK.
   const playerId = str(data.playerId, 40);
   const matchId = str(data.matchId, 40);
-  const [playerOk, matchOk] = await Promise.all([
+  const freeAgentId = str(data.freeAgentId, 40);
+  const [playerOk, matchOk, freeAgentOk] = await Promise.all([
     playerId ? prisma.player.findUnique({ where: { id: playerId }, select: { id: true } }) : null,
     matchId ? prisma.match.findUnique({ where: { id: matchId }, select: { id: true } }) : null,
+    freeAgentId
+      ? prisma.freeAgent.findUnique({ where: { id: freeAgentId }, select: { id: true } })
+      : null,
   ]);
 
   const report = await prisma.report.create({
@@ -49,6 +53,7 @@ export async function POST(req: Request) {
       contact: str(data.contact, 200),
       playerId: playerOk ? playerId : null,
       matchId: matchOk ? matchId : null,
+      freeAgentId: freeAgentOk ? freeAgentId : null,
     },
     select: { id: true },
   });

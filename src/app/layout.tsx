@@ -20,6 +20,7 @@ const NAV = [
   { href: "/teams", label: "Equipos" },
   { href: "/estadisticas", label: "Estadísticas" },
   { href: "/hall-of-fame", label: "Hall of Fame" },
+  { href: "/tablon", label: "Busco equipo" },
 ];
 
 export default function RootLayout({
