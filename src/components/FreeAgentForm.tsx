@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { AGE_ORDER, AGE_LABELS, ELO_ORDER, ELO_LABELS, SELECTABLE_ROLES } from "@/lib/free-agents";
 import { roleLabel } from "@/lib/labels";
+import { addMyAd } from "@/lib/my-ads";
 import type { PlayerRecord } from "@/lib/player-record";
 
 const INPUT =
@@ -172,11 +173,14 @@ export function FreeAgentForm() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "No se pudo publicar. Inténtalo de nuevo.");
-      setManageUrl(
-        data.manageToken
-          ? `${window.location.origin}/tablon/gestionar/${data.manageToken}`
-          : "",
-      );
+      if (data.manageToken) {
+        setManageUrl(`${window.location.origin}/tablon/gestionar/${data.manageToken}`);
+        // Lo recordamos en este navegador para que puedas gestionarlo desde el
+        // tablón sin depender de haber guardado el enlace.
+        addMyAd({ id: data.id, token: data.manageToken, nick: form.lolNick.trim() });
+      } else {
+        setManageUrl("");
+      }
       setStatus("done");
     } catch (err) {
       setStatus("error");

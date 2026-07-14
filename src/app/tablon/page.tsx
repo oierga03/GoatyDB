@@ -8,6 +8,8 @@ import { ReportDialog } from "@/components/ReportDialog";
 import { DiscordReveal } from "@/components/DiscordReveal";
 import { FreeAgentFilters } from "@/components/FreeAgentFilters";
 import { VerifiedRecord } from "@/components/VerifiedRecord";
+import { OwnerControls } from "@/components/OwnerControls";
+import { MyAdsBanner } from "@/components/MyAdsBanner";
 import { getPlayerRecords } from "@/lib/player-record";
 import { roleLabel } from "@/lib/labels";
 import {
@@ -114,6 +116,8 @@ export default async function TablonPage({
         cualquier rango que diga tener.
       </div>
 
+      <MyAdsBanner />
+
       <FreeAgentFilters />
 
       <p className="text-sm text-[var(--color-muted)]">
@@ -193,6 +197,8 @@ export default async function TablonPage({
                         ? "Caduca hoy"
                         : `Caduca en ${left} día${left === 1 ? "" : "s"}`}
                     </span>
+                    {/* Solo aparece si el anuncio es tuyo (token en este navegador). */}
+                    <OwnerControls adId={ad.id} />
                     <ReportDialog
                       freeAgentId={ad.id}
                       subject={`Anuncio de ${ad.lolNick}`}

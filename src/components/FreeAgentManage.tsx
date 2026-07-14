@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { removeMyAdByToken } from "@/lib/my-ads";
 
 type Action = "renew" | "filled" | "delete";
 
@@ -26,6 +27,8 @@ export function FreeAgentManage({ token }: { token: string }) {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "No se pudo hacer. Inténtalo de nuevo.");
+      // Si lo has borrado, que deje de figurar como tuyo en este navegador.
+      if (action === "delete") removeMyAdByToken(token);
       setDone(action);
       router.refresh();
     } catch (err) {
