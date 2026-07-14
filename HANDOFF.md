@@ -215,6 +215,37 @@ corrige con el botón de reportar.
 
 ---
 
+## 6 bis. El tablón de "busco equipo" (`/tablon`)
+
+La única parte de la web donde **la comunidad escribe**. Un jugador publica su
+rol, elo, disponibilidad y Discord; un capitán le encuentra. Sin registro.
+
+**Es la única excepción al principio de §1, y por eso está aislada:**
+
+- Vive en su **propia tabla** (`FreeAgent`), nunca en `Player`. El elo que
+  alguien *dice* tener no puede contaminar las estadísticas cotejadas. **No las
+  mezcles.**
+- Se muestra siempre junto a su **OP.GG**, que es lo que hace el elo comprobable
+  de un clic. La web lo dice explícitamente: *"esto lo escribe cada jugador
+  sobre sí mismo"*.
+
+Decisiones que parecen raras y no lo son:
+
+| Decisión | Por qué |
+|---|---|
+| **Edad por tramos**, nunca exacta | Hay menores en el circuito. Edad exacta + Discord, en abierto e indexable, es un riesgo que no compensa. Al equipo le vale el tramo. |
+| Los anuncios **caducan a 30 días** | Un tablón lleno de gente que ya tiene equipo no sirve para nada. Se renueva con un clic. |
+| El **Discord no viaja en el HTML** | Se pide a `/api/free-agents/contacto` al pulsar. Si fuera una prop, un solo `curl` a `/tablon` se llevaría el contacto de toda la escena. |
+| `select` explícito, no `include` | Para que el `manageToken` (la credencial de borrado) y el hash de IP no lleguen ni por accidente al cliente. |
+| **Server actions** en `/admin/tablon`, no `/api/` | Los server actions hacen POST contra la propia URL, así que el middleware de `/admin/*` los protege. Una ruta bajo `/api/` estaría abierta. |
+| Sin cuentas: **enlace secreto** (`manageToken`) | Es la credencial para renovar/borrar. Se le da al publicar y no se puede recuperar. |
+
+**Publicación instantánea** (decisión del dueño), con: honeypot, límite de 3
+anuncios por IP y día, un Discord = un anuncio activo, validación de que el
+OP.GG es realmente de `op.gg`, y botón de reportar → `/admin/tablon`.
+
+---
+
 ## 7. Despliegue y flujo de trabajo
 
 ```
@@ -251,6 +282,13 @@ hasta que lo detectamos.
 3. Fusionar jugadores `needsReview` desde `/admin/reportes`.
 4. Premio MVP de la Jornada 3 (pendiente desde el P2).
 5. Logos de los 8 equipos que no tienen.
+6. **Sembrar el tablón** antes de moverlo: un tablón con 0 anuncios es peor que
+   no tenerlo.
+
+### Rareza conocida (preexistente, no del tablón)
+`notFound()` devuelve **200 en vez de 404** en toda la web (pasa igual en
+`/players/no-existe`). El usuario ve la página correcta; lo único mal es el
+código HTTP, y solo afecta a cómo lo indexan los buscadores.
 
 ### Ideas no hechas (valoradas y descartadas o pendientes)
 - **Oro por partida**: `historico_split.csv` lo tiene, pero `PlayerGameStat` no
