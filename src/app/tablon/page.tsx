@@ -7,6 +7,8 @@ import { RoleIcon } from "@/components/RoleIcon";
 import { ReportDialog } from "@/components/ReportDialog";
 import { DiscordReveal } from "@/components/DiscordReveal";
 import { FreeAgentFilters } from "@/components/FreeAgentFilters";
+import { VerifiedRecord } from "@/components/VerifiedRecord";
+import { getPlayerRecords } from "@/lib/player-record";
 import { roleLabel } from "@/lib/labels";
 import {
   ageLabel,
@@ -61,7 +63,7 @@ async function getAds(role?: string, minElo?: string) {
       about: true,
       opggUrl: true,
       expiresAt: true,
-      player: { select: { slug: true, displayName: true } },
+      playerId: true,
     },
     take: 200,
   });
@@ -74,6 +76,12 @@ export default async function TablonPage({
 }) {
   const { role, minElo } = await searchParams;
   const ads = await getAds(role, minElo);
+
+  // El historial verificado de los que ya están en la base de datos, en una
+  // sola consulta para todos.
+  const records = await getPlayerRecords(
+    ads.map((a) => a.playerId).filter((id): id is string => Boolean(id)),
+  );
 
   return (
     <div className="space-y-8">
@@ -122,6 +130,7 @@ export default async function TablonPage({
         <ul className="space-y-3">
           {ads.map((ad) => {
             const left = daysLeft(ad.expiresAt);
+            const record = ad.playerId ? records.get(ad.playerId) : null;
             return (
               <li key={ad.id} className="card card-hover p-4 sm:p-5">
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -134,14 +143,6 @@ export default async function TablonPage({
                         {roleLabel(ad.role)}
                         {ad.secondaryRole && ` · ${roleLabel(ad.secondaryRole)}`}
                       </span>
-                      {ad.player && (
-                        <Link
-                          href={`/players/${ad.player.slug}`}
-                          className="badge bg-sky-600/15 text-sky-800 ring-1 ring-inset ring-sky-500/30 hover:opacity-80 transition-opacity"
-                        >
-                          Ver su ficha →
-                        </Link>
-                      )}
                     </div>
 
                     {/* Elo — autodeclarado, con el OP.GG al lado para comprobarlo */}
@@ -180,6 +181,9 @@ export default async function TablonPage({
                         {ad.about}
                       </p>
                     )}
+
+                    {/* Lo que el jugador dice, arriba. Lo que sabemos, aquí. */}
+                    {record && <VerifiedRecord record={record} />}
                   </div>
 
                   <div className="flex shrink-0 flex-col items-end gap-2">

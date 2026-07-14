@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { AgeBracket, EloTier, PlayerRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { expiryFromNow, normalizeOpggUrl, SELECTABLE_ROLES } from "@/lib/free-agents";
-import { slugify } from "@/lib/slug";
+import { findPlayerIdsByNick, playerMatchesNick } from "@/lib/player-record";
 
 /// Los anuncios se publican al instante (sin cola de moderación), así que las
 /// defensas contra el spam tienen que ir aquí. Ninguna es infalible por sí
@@ -117,12 +117,22 @@ export async function POST(req: Request) {
     }
   }
 
-  // Si el nick ya está en la base de datos, enlazamos su ficha: sus partidas
-  // reales valen más que cualquier elo autodeclarado.
-  const player = await prisma.player.findUnique({
-    where: { slug: slugify(lolNick) },
-    select: { id: true },
-  });
+  // Enlace con la ficha real: sus partidas valen más que cualquier elo
+  // autodeclarado.
+  //
+  // El formulario puede mandarnos a QUIÉN dice ser (cuando varias personas
+  // comparten nick, elige él). No nos fiamos: comprobamos que ese jugador
+  // responda de verdad a ese nick, o cualquiera colgaría su anuncio de la ficha
+  // del mejor jugador del circuito.
+  const claimedId = text(data.playerId, 40);
+  let playerId: string | null = null;
+  if (claimedId) {
+    if (await playerMatchesNick(claimedId, lolNick)) playerId = claimedId;
+  } else {
+    // Sin elección explícita, solo enlazamos si no hay ninguna duda.
+    const ids = await findPlayerIdsByNick(lolNick);
+    if (ids.length === 1) playerId = ids[0];
+  }
 
   const ad = await prisma.freeAgent.create({
     data: {
@@ -137,7 +147,7 @@ export async function POST(req: Request) {
       availability,
       about,
       ipHash,
-      playerId: player?.id ?? null,
+      playerId,
       expiresAt: expiryFromNow(now),
     },
     select: { id: true, manageToken: true },
