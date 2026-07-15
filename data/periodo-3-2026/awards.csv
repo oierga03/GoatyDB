@@ -1,0 +1,4 @@
+award_name,award_slug,scope,category,is_featured,display_priority,title,matchday,division,player_nick,player_slug,team,citation,awarded_at,image_url
+MVP de Jornada,mvp-de-jornada,MATCHDAY,MVP,false,50,MVP · Jornada 1 · Periodo 3 2026,1,,Night Demon,night-demon-6186,VVV,,,
+Ejecutor de Jornada,ejecutor-de-jornada,MATCHDAY,EXECUTOR,false,40,Ejecutor · Jornada 1 · Periodo 3 2026,1,,Bombeta Piruleta,bombeta-piruleta-1874,404 Nexus,,,
+Asistente de Jornada,asistente-de-jornada,MATCHDAY,ASSISTANT,false,30,Asistente · Jornada 1 · Periodo 3 2026,1,,Sad Mans Parade,sad-mans-parade-4941,Eclipse,,,
