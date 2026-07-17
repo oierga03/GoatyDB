@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { BackLink } from "@/components/BackLink";
 import { ROLE_ORDER, WIN_BADGE_CLASS, LOSS_BADGE_CLASS } from "@/lib/labels";
 import { TeamLogo } from "@/components/TeamLogo";
 import { RoleIcon } from "@/components/RoleIcon";
@@ -57,12 +58,7 @@ export default async function MatchPage({
 
   return (
     <div className="space-y-8">
-      <Link
-        href={`/teams/${match.teamA.slug}`}
-        className="inline-flex items-center gap-1 text-sm text-[var(--color-muted)] hover:text-[var(--color-text)]"
-      >
-        ← {match.teamA.name}
-      </Link>
+      <BackLink fallbackHref={`/teams/${match.teamA.slug}`} />
 
       {/* Cabecera */}
       <header className="card p-5">
