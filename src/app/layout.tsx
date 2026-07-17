@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 const NAV = [
   { href: "/players", label: "Jugadores" },
   { href: "/teams", label: "Equipos" },
+  { href: "/clasificacion", label: "Clasificación" },
   { href: "/estadisticas", label: "Estadísticas" },
   { href: "/hall-of-fame", label: "Hall of Fame" },
   { href: "/tablon", label: "Busco equipo" },
