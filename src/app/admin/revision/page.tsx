@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { mergePlayers } from "@/lib/player-merge";
+import { mergePlayers, syncTeamHistory } from "@/lib/player-merge";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { roleLabel } from "@/lib/labels";
 
@@ -38,7 +38,10 @@ async function mergeGroup(formData: FormData) {
 
 async function confirmDistinct(formData: FormData) {
   "use server";
-  await prisma.player.update({ where: { id: String(formData.get("id")) }, data: { needsReview: false } });
+  const id = String(formData.get("id"));
+  await prisma.player.update({ where: { id }, data: { needsReview: false } });
+  // Al confirmarlo como persona real, le completamos su historial de plantillas.
+  await syncTeamHistory(id);
   revalidatePath("/admin/revision");
 }
 

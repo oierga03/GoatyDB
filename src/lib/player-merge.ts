@@ -1,5 +1,69 @@
-import { PlayerRole } from "@prisma/client";
+import { PlayerRole, RosterStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+
+// ---------------------------------------------------------------------------
+// Historial de plantillas a partir de las partidas
+//
+// Un jugador autocreado desde un marcador tiene partidas pero no plantilla, así
+// que no aparece en el roster de su equipo ni en su historial competitivo. Como
+// SABEMOS que jugó ahí (lo dicen sus partidas), le creamos la membresía que
+// falta: es un hecho verificado, no una suposición.
+// ---------------------------------------------------------------------------
+
+/// Crea las líneas de plantilla que le falten a un jugador según los equipos y
+/// splits en los que tiene partidas. Devuelve cuántas creó.
+export async function syncTeamHistory(playerId: string): Promise<number> {
+  const [player, stats, memberships] = await Promise.all([
+    prisma.player.findUnique({ where: { id: playerId }, select: { primaryRole: true } }),
+    prisma.playerGameStat.findMany({
+      where: { playerId },
+      select: { teamId: true, position: true, game: { select: { match: { select: { divisionId: true } } } } },
+    }),
+    prisma.rosterMembership.findMany({ where: { playerId }, select: { teamEntryId: true } }),
+  ]);
+  if (!player) return 0;
+
+  // Agrupar sus partidas por (equipo, división) → es la clave de una TeamEntry.
+  const groups = new Map<string, { teamId: string; divisionId: string; positions: PlayerRole[] }>();
+  for (const s of stats) {
+    const key = `${s.teamId}|${s.game.match.divisionId}`;
+    const g = groups.get(key) ?? { teamId: s.teamId, divisionId: s.game.match.divisionId, positions: [] };
+    if (s.position !== PlayerRole.UNKNOWN) g.positions.push(s.position);
+    groups.set(key, g);
+  }
+
+  const have = new Set(memberships.map((m) => m.teamEntryId));
+  let created = 0;
+
+  for (const g of groups.values()) {
+    const entry = await prisma.teamEntry.findUnique({
+      where: { teamId_divisionId: { teamId: g.teamId, divisionId: g.divisionId } },
+      select: { id: true },
+    });
+    if (!entry || have.has(entry.id)) continue;
+
+    // Rol de esa etapa: su posición más repetida ahí; si no hay dato, su rol
+    // principal conocido.
+    const counts = new Map<PlayerRole, number>();
+    for (const p of g.positions) counts.set(p, (counts.get(p) ?? 0) + 1);
+    const role =
+      [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? player.primaryRole;
+
+    await prisma.rosterMembership.create({
+      data: {
+        playerId,
+        teamEntryId: entry.id,
+        role,
+        rosterStatus: RosterStatus.STARTER,
+        notes: "Añadido desde su participación en partidas.",
+      },
+    });
+    have.add(entry.id);
+    created++;
+  }
+
+  return created;
+}
 
 // ---------------------------------------------------------------------------
 // Fusión de jugadores
@@ -142,6 +206,10 @@ export async function mergePlayers(
   if (Object.keys(backfill).length) {
     await prisma.player.update({ where: { id: targetId }, data: backfill });
   }
+
+  // El destino puede haber heredado partidas de equipos en los que aún no
+  // figuraba en plantilla: completamos su historial.
+  await syncTeamHistory(targetId);
 
   return { reassigned, deleted, sources: sources.length };
 }
