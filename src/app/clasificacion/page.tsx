@@ -76,24 +76,31 @@ async function getStandings(splitSlug: string): Promise<DivBlock[]> {
         where: { divisionId: div.id, round: { startsWith: "Jornada" }, winnerSide: { not: null } },
         select: { winnerSide: true, teamAId: true, teamBId: true },
       });
-      const rec = new Map<string, { team: Team; w: number; l: number }>();
-      for (const e of div.teamEntries) rec.set(e.team.id, { team: e.team, w: 0, l: 0 });
+      const rec = new Map<string, { team: Team; group: string | null; w: number; l: number }>();
+      for (const e of div.teamEntries)
+        rec.set(e.team.id, { team: e.team, group: e.group?.name ?? null, w: 0, l: 0 });
       for (const m of matches) {
         const winner = m.winnerSide === "A" ? m.teamAId : m.teamBId;
         const loser = m.winnerSide === "A" ? m.teamBId : m.teamAId;
         if (rec.has(winner)) rec.get(winner)!.w++;
         if (rec.has(loser)) rec.get(loser)!.l++;
       }
-      const rows: Row[] = [...rec.values()]
-        .sort((a, b) => b.w - a.w || a.l - b.l || a.team.name.localeCompare(b.team.name))
-        .map((r, i) => ({
-          position: i + 1,
-          team: r.team,
-          wins: r.w,
-          losses: r.l,
-          result: "UNKNOWN" as TeamEntryResult,
-        }));
-      blocks.push({ name: div.name, groups: [{ name: null, rows }], computed: true });
+      // Agrupamos por grupo (Grupo A, B…); las divisiones sin grupos van juntas.
+      const byGroup = new Map<string, GroupBlock>();
+      for (const r of rec.values()) {
+        const key = r.group ?? "";
+        const gb = byGroup.get(key) ?? { name: r.group, rows: [] };
+        gb.rows.push({ position: null, team: r.team, wins: r.w, losses: r.l, result: "UNKNOWN" });
+        byGroup.set(key, gb);
+      }
+      const groups = [...byGroup.values()].sort((a, b) =>
+        (a.name ?? "").localeCompare(b.name ?? ""),
+      );
+      for (const g of groups) {
+        g.rows.sort((a, b) => b.wins - a.wins || a.losses - b.losses || a.team.name.localeCompare(b.team.name));
+        g.rows.forEach((r, i) => (r.position = i + 1));
+      }
+      blocks.push({ name: div.name, groups, computed: true });
     }
   }
   return blocks;
