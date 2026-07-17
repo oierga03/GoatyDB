@@ -116,9 +116,21 @@ export default async function AdminReportsPage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">
-          Jugadores autocreados pendientes de confirmar
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold">
+            Jugadores autocreados pendientes de confirmar
+          </h2>
+          <Link
+            href="/admin/revision"
+            className="rounded-lg bg-[var(--color-accent)] px-3 py-1.5 text-xs font-semibold text-black hover:opacity-90 transition-opacity"
+          >
+            Revisar con contexto y fusionar →
+          </Link>
+        </div>
+        <p className="text-xs text-[var(--color-muted)]">
+          Aquí solo se listan. Para ver equipo, rival y campeón de cada uno y poder fusionar o
+          reasignar, entra en la revisión.
+        </p>
         {review.length === 0 ? (
           <p className="text-sm text-[var(--color-muted)]">Ninguno pendiente.</p>
         ) : (
