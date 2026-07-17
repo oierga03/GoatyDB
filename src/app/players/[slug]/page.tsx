@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { BackLink } from "@/components/BackLink";
 import { roleLabel, rosterStatusLabel, AWARD_SCOPE_LABELS, WIN_BADGE_CLASS, LOSS_BADGE_CLASS } from "@/lib/labels";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { RoleTag } from "@/components/RoleTag";
@@ -274,12 +275,7 @@ export default async function PlayerProfilePage({
 
   return (
     <div className="space-y-8">
-      <Link
-        href="/players"
-        className="inline-flex items-center gap-1 text-sm text-[var(--color-muted)] hover:text-[var(--color-text)]"
-      >
-        ← Jugadores
-      </Link>
+      <BackLink fallbackHref="/players" />
 
       {/* Cabecera */}
       <header className="flex items-center gap-4">

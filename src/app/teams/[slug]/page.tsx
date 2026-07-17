@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { PlayerRole, RosterStatus } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { BackLink } from "@/components/BackLink";
 import { roleLabel, rosterStatusLabel, ROLE_ORDER, ROSTER_STATUS_GROUP, isNonPlayer, WIN_BADGE_CLASS, LOSS_BADGE_CLASS } from "@/lib/labels";
 import { TeamLogo } from "@/components/TeamLogo";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
@@ -209,12 +210,7 @@ export default async function TeamProfilePage({
 
   return (
     <div className="space-y-8">
-      <Link
-        href="/teams"
-        className="inline-flex items-center gap-1 text-sm text-[var(--color-muted)] hover:text-[var(--color-text)]"
-      >
-        ← Equipos
-      </Link>
+      <BackLink fallbackHref="/teams" />
 
       {/* Cabecera */}
       <header className="flex flex-wrap items-center gap-4">
